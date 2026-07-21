@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Global Leaderboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base App Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .leaderboard-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 60px 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .leaderboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Filter Controls Bar */
+        .filter-tabs-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .timeframe-toggles {
+            display: flex;
+            padding: 0.3rem;
+            border-radius: var(--radius-md);
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-radius: calc(var(--radius-md) - 4px);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-primary);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            min-width: 280px;
+        }
+
+        .search-box-wrapper input {
+            padding-left: 2.5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Podium Layout */
+        .podium-container {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr 1fr;
+            gap: 1.5rem;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+        }
+
+        .podium-card {
+            border-radius: var(--radius-lg);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .podium-card.rank-1 {
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+            order: 2;
+        }
+
+        .podium-card.rank-2 {
+            border-color: rgba(192, 192, 192, 0.3);
+            order: 1;
+        }
+
+        .podium-card.rank-3 {
+            border-color: rgba(205, 127, 50, 0.3);
+            order: 3;
+        }
+
+        .crown-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .rank-1 .crown-icon { color: #ffd700; }
+        .rank-2 .crown-icon { color: #c0c0c0; }
+        .rank-3 .crown-icon { color: #cd7f32; }
+
+        .podium-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 2px solid transparent;
+        }
+
+        .rank-1 .podium-avatar { border-color: #ffd700; width: 85px; height: 85px; }
+        .rank-2 .podium-avatar { border-color: #c0c0c0; }
+        .rank-3 .podium-avatar { border-color: #cd7f32; }
+
+        .podium-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .podium-score {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--cyan-glow);
+        }
+
+        .podium-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Leaderboard Table */
+        .leaderboard-table-card {
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .leaderboard-table td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+        }
+
+        .leaderboard-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-cell img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .rank-number {
+            font-weight: 700;
+            width: 30px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .podium-container {
+                grid-template-columns: 1fr;
+            }
+            .podium-card.rank-1, .podium-card.rank-2, .podium-card.rank-3 {
+                order: initial;
+            }
+            .filter-tabs-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">Home</a></li>
+                <li><a href="dashboard.html" class="nav-item">Dashboard</a></li>
+                <li><a href="leaderboard.html" class="nav-item active">Leaderboard</a></li>
+                <li><a href="profile.html" class="nav-item">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="leaderboard-wrapper">
+        <header class="leaderboard-header">
+            <h1>Global Candidate <span class="gradient-text">Standings</span></h1>
+            <p>Compete with top engineers, developers, and candidates worldwide.</p>
+        </header>
+
+        <!-- Controls Bar -->
+        <div class="filter-tabs-bar">
+            <div class="timeframe-toggles glass">
+                <button class="tab-btn active" data-tab="weekly">Weekly Rankings</button>
+                <button class="tab-btn" data-tab="monthly">Monthly Rankings</button>
+                <button class="tab-btn" data-tab="alltime">All-Time Champions</button>
+            </div>
+            <div class="search-box-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-candidate" placeholder="Search candidate name..." class="input-field-global glass">
+            </div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <section class="podium-container">
+            <!-- Rank 2 -->
+            <div class="podium-card rank-2 glass">
+                <i class="fa-solid fa-crown crown-icon"></i>
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250" alt="Rank 2" class="podium-avatar">
+                <div class="podium-name">Sarah Jenkins</div>
+                <div class="podium-score">96.4%</div>
+                <div class="podium-badge">Technical Specialist</div>
+            </div>
+
+            <!-- Rank 1 -->
+            <div class="podium-card rank-1 glass">
+                <i class="fa-solid fa-crown crown-icon"></i>
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250" alt="Rank 1" class="podium-avatar">
+                <div class="podium-name">Alex Chen</div>
+                <div class="podium-score">98.8%</div>
+                <div class="podium-badge">Grandmaster Candidate</div>
+            </div>
+
+            <!-- Rank 3 -->
+            <div class="podium-card rank-3 glass">
+                <i class="fa-solid fa-crown crown-icon"></i>
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250" alt="Rank 3" class="podium-avatar">
+                <div class="podium-name">Michael Chang</div>
+                <div class="podium-score">94.2%</div>
+                <div class="podium-badge">Behavioral Pro</div>
+            </div>
+        </section>
+
+        <!-- Full Standings Table -->
+        <section class="leaderboard-table-card glass">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Category</th>
+                        <th>Interviews</th>
+                        <th>Avg Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <tr>
+                        <td><span class="rank-number">4</span></td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150" alt="User">
+                                <div><strong>Emma Watson</strong><br><small class="text-muted">United States</small></div>
+                            </div>
+                        </td>
+                        <td>System Design</td>
+                        <td>24</td>
+                        <td><strong class="gradient-text">93.5%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-number">5</span></td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=150" alt="User">
+                                <div><strong>David Miller</strong><br><small class="text-muted">Germany</small></div>
+                            </div>
+                        </td>
+                        <td>Technical</td>
+                        <td>19</td>
+                        <td><strong class="gradient-text">91.8%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-number">6</span></td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150" alt="User">
+                                <div><strong>Priya Sharma</strong><br><small class="text-muted">India</small></div>
+                            </div>
+                        </td>
+                        <td>HR & Culture</td>
+                        <td>31</td>
+                        <td><strong class="gradient-text">90.2%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Background Canvas
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+                resize(); window.addEventListener('resize', resize);
+                class P {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 1.8 + 0.4;
+                        this.speedX = Math.random() * 0.2 - 0.1;
+                        this.speedY = Math.random() * 0.2 - 0.1;
+                    }
+                    update() {
+                        this.x += this.speedX; this.y += this.speedY;
+                        if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                        if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+                for(let i=0; i<45; i++) particles.push(new P());
+                function loop() {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(loop);
+                }
+                loop();
+            }
+
+            // Tab Buttons Switcher
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

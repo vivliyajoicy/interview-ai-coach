@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Live Simulation Session</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/interview.css">
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" id="exit-session-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach Live</span>
+            </a>
+            <div class="session-top-status">
+                <div class="status-badge-item glass">
+                    <span class="status-badge-lbl">Domain:</span>
+                    <span id="session-display-category" class="gradient-text font-weight-bold">Technical</span>
+                </div>
+                <div class="status-badge-item glass">
+                    <span class="status-badge-lbl">Difficulty:</span>
+                    <span id="session-display-difficulty" class="text-glow">Medium</span>
+                </div>
+            </div>
+            <div class="nav-menu">
+                <button id="pause-session-btn" class="btn btn-secondary glass">
+                    <i class="fa-solid fa-circle-pause"></i> <span>Pause</span>
+                </button>
+                <button id="terminate-session-btn" class="btn btn-secondary glass btn-warn-hover">
+                    <i class="fa-solid fa-circle-xmark"></i> End Session
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Live Workspace Layout Grid -->
+    <main class="interview-workspace-container">
+        
+        <!-- Left Side: AI Avatar Telemetry Panel -->
+        <section class="avatar-telemetry-panel glass">
+            <div class="avatar-view-viewport glass">
+                <div class="avatar-wrapper-circle floating-anim">
+                    <div class="avatar-core-glow"></div>
+                    <i class="fa-solid fa-robot AI-avatar-vector"></i>
+                </div>
+                <!-- Dynamic Status Ring Subtitle Overlay -->
+                <div class="interviewer-status-overlay">
+                    <div id="interviewer-pulse-dot" class="pulse-dot-active"></div>
+                    <span id="interviewer-status-text">AI Interviewer is active</span>
+                </div>
+            </div>
+
+            <!-- Operational Telemetry Indicators -->
+            <div class="session-counters-row grid-2">
+                <div class="counter-card glass">
+                    <div class="lbl">Elapsed Time</div>
+                    <div id="session-timer-clock" class="val text-glow">00:00</div>
+                </div>
+                <div class="counter-card glass">
+                    <div class="lbl">Question Matrix</div>
+                    <div class="val"><span id="current-q-index">1</span><span class="slash-muted"> / </span><span id="total-q-count">5</span></div>
+                </div>
+            </div>
+
+            <!-- Progress Bar Tracker -->
+            <div class="session-progress-wrapper">
+                <div class="progress-meta-row">
+                    <span>Overall Progression</span>
+                    <span id="progress-percent-lbl">20%</span>
+                </div>
+                <div class="progress-bar-container glass">
+                    <div id="session-progress-fill" class="progress-bar-fill progress-glow" style="width: 20%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Interaction Chat Conversation Board -->
+        <section class="chat-dialogue-panel glass">
+            <div id="chat-stream-viewport" class="chat-messages-container">
+                <!-- Dynamically generated message packets populate here -->
+                
+                <!-- System AI Question Packet Sample -->
+                <div class="msg-packet packet-ai">
+                    <div class="packet-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="packet-bubble glass sliding-in-left">
+                        <p id="current-ai-question-text">Initializing connection matrix... Preparing professional interview scenario mapping...</p>
+                    </div>
+                </div>
+
+                <!-- User Answer Packet Sample -->
+                <div class="msg-packet packet-user hidden" id="user-typing-preview-packet">
+                    <div class="packet-avatar user-avatar-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="packet-bubble glass user-bubble-color">
+                        <p id="user-live-text-stream" class="italic-muted">Transcribing dynamic input stream data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speech Audio Waveforms Visualizer Panel -->
+            <div id="audio-waveform-panel" class="waveform-panel glass hidden">
+                <div class="waveform-bars-wrapper">
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                </div>
+                <span class="waveform-status-lbl">Listening to vocal audio stream inputs...</span>
+            </div>
+
+            <!-- Control Operational Input Bar Console -->
+            <footer class="chat-input-console-bar glass">
+                <div class="input-actions-form-row">
+                    <!-- Text Answer Input Area -->
+                    <textarea id="answer-text-area" class="input-field-global glass input-textarea-resize" placeholder="Type your comprehensive response or leverage the voice recording channel..." rows="2"></textarea>
+                    
+                    <!-- Voice Channel Processing Engine Trigger -->
+                    <button id="toggle-mic-voice-btn" class="btn btn-secondary glass btn-icon-only tooltip-wrapper" title="Toggle Voice Recognition Channel">
+                        <i class="fa-solid fa-microphone" id="mic-icon-state"></i>
+                    </button>
+
+                    <!-- Submission Command Triggers -->
+                    <button id="submit-answer-btn" class="btn btn-primary btn-glow">
+                        <span>Submit Answer</span> <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-footer-pagination-helpers">
+                    <button id="prev-question-shortcut-btn" class="btn-text-link" disabled><i class="fa-solid fa-chevron-left"></i> Previous Question</button>
+                    <span class="helper-text-hint">Press Enter to Submit, Shift+Enter for new line</span>
+                    <button id="skip-question-shortcut-btn" class="btn-text-link">Skip / Next <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </footer>
+        </section>
+    </main>
+
+    <!-- Overlay Modal Dialog System for Application Interruption Frameworks -->
+    <div id="session-modal-overlay" class="modal-system-mask glass hidden">
+        <div class="modal-card glass scale-up-anim">
+            <h3 id="modal-headline-title">Simulation Environment Interrupted</h3>
+            <p id="modal-body-caption">The AI execution tracking state has been suspended. Tap Resume to reconnect to the session matrix safely.</p>
+            <div class="modal-actions-row">
+                <button id="modal-action-primary" class="btn btn-primary btn-glow">Resume Session</button>
+                <button id="modal-action-secondary" class="btn btn-secondary glass">Discard & Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Application Layers -->
+    <script src="js/utils.js"></script>
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/interview.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // High-performance background canvas rendering
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+                resize(); window.addEventListener('resize', resize);
+
+                class P {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 1.8 + 0.4;
+                        this.speedX = Math.random() * 0.2 - 0.1;
+                        this.speedY = Math.random() * 0.2 - 0.1;
+                    }
+                    update() {
+                        this.x += this.speedX; this.y += this.speedY;
+                        if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                        if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+                for(let i=0; i<45; i++) particles.push(new P());
+                function loop() {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(loop);
+                }
+                loop();
+            }
+        });
+    </script>
+</body>
+</html>

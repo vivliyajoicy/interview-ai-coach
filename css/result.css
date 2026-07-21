@@ -1,0 +1,257 @@
+/* ==========================================================================
+   AI INTERVIEW COACH - RESULT PAGE SPECIFIC STYLESHEET (css/result.css)
+   ========================================================================== */
+
+.result-workspace-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 120px 2rem 60px 2rem;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Header Banner Section */
+.result-header-banner {
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-neon);
+}
+
+.header-meta-details .badge {
+    margin-bottom: 1rem;
+}
+
+.header-meta-details h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.header-meta-details p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.result-actions-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Overview Score Grid */
+.overview-score-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 2rem;
+}
+
+/* Circular Chart Widget */
+.overall-score-card {
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.overall-score-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+.circular-chart-wrapper {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.circular-chart {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 2.8;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease-in-out;
+}
+
+.circular-chart.cyan .circle {
+    stroke: var(--cyan-glow);
+    filter: drop-shadow(0 0 6px var(--cyan-glow));
+}
+
+.percentage {
+    fill: var(--text-main);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.55em;
+    font-weight: 700;
+    text-anchor: middle;
+}
+
+.rating-tier-tag {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+/* Granular Competency Breakdown */
+.breakdown-metrics-card {
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+}
+
+.breakdown-metrics-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.metrics-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.metric-progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.item-meta span {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.item-meta i {
+    color: var(--cyan-glow);
+    width: 18px;
+}
+
+.item-meta strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* Analysis Section Grid */
+.feedback-analysis-grid {
+    gap: 2rem;
+}
+
+.analysis-card {
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+}
+
+.card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-title-row i {
+    font-size: 1.3rem;
+}
+
+.icon-success { color: var(--accent-neon); }
+.icon-warn { color: var(--accent-warn); }
+
+.card-title-row h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.feedback-bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.feedback-bullet-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.feedback-bullet-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--cyan-glow);
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* Actionable AI Recommendations Card */
+.recommendations-card {
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+}
+
+.suggestions-content-box {
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    background: rgba(0, 242, 254, 0.03);
+    border-color: rgba(0, 242, 254, 0.15);
+}
+
+/* Responsive Viewport Styles */
+@media (max-width: 992px) {
+    .overview-score-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-header-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .result-actions-group {
+        width: 100%;
+    }
+    
+    .result-actions-group .btn {
+        flex: 1;
+        width: 100%;
+    }
+}

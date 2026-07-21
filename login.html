@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Secure Gateway</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base & Page Specific Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">Home</a></li>
+                <li><a href="about.html" class="nav-item">About</a></li>
+                <li><a href="contact.html" class="nav-item">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Login Container Box -->
+    <main class="login-wrapper">
+        <div class="login-card glass floating-anim">
+            <div class="login-header text-center">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-shield-halved text-glow"></i> Secure Portal
+                </div>
+                <h2>Welcome Back</h2>
+                <p class="login-subtitle">Authenticate to access your AI-powered performance analytics dashboard</p>
+            </div>
+
+            <!-- Contextual App Status Alert Wrapper -->
+            <div id="auth-alert" class="auth-message-box hidden">
+                <i class="fa-solid fa-circle-info msg-icon"></i>
+                <span id="auth-alert-text">Status message text box.</span>
+            </div>
+
+            <div class="login-actions">
+                <!-- Interactive Google Sign-In Trigger Box -->
+                <button id="googleLogin" class="btn btn-primary btn-glow btn-full-width">
+                    <i class="fa-brands fa-google google-icon-brand"></i>
+                    <span>Sign In With Google</span>
+                </button>
+            </div>
+
+            <!-- Loading Mask State Overriding View -->
+            <div id="loadingOverlay" class="loading-overlay glass hidden">
+                <div class="spinner-container">
+                    <div class="loading-spinner"></div>
+                    <p class="spinner-caption">Verifying dynamic identity keys...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Shared Core Utility Layer & Auth Controllers -->
+    <script src="js/utils.js"></script>
+    <!-- Importing the modern modular scripts explicitly as components -->
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // High-performance canvas particle orchestration engine
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                
+                function resizeCanvas() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2 + 0.5;
+                        this.speedX = Math.random() * 0.3 - 0.15;
+                        this.speedY = Math.random() * 0.3 - 0.15;
+                        this.alpha = Math.random() * 0.4 + 0.2;
+                    }
+                    update() {
+                        this.x += this.speedX;
+                        this.y += this.speedY;
+                        if(this.x > canvas.width) this.x = 0;
+                        if(this.x < 0) this.x = canvas.width;
+                        if(this.y > canvas.height) this.y = 0;
+                        if(this.y < 0) this.y = canvas.height;
+                    }
+                    draw() {
+                        ctx.fillStyle = `rgba(0, 242, 254, ${this.alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                function initParticles() {
+                    particles = [];
+                    const count = Math.min(Math.floor(canvas.width / 15), 60);
+                    for(let i = 0; i < count; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+                initParticles();
+
+                function animateParticles() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.update();
+                        p.draw();
+                    });
+                    requestAnimationFrame(animateParticles);
+                }
+                animateParticles();
+            }
+        });
+    </script>
+</body>
+</html>

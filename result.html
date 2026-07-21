@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Evaluation Scorecard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf Library for Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Base & Page Specific Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/result.css">
+</head>
+<body class="dark-theme">
+    <!-- Background Elements -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-item">Dashboard</a></li>
+                <li><a href="leaderboard.html" class="nav-item">Leaderboard</a></li>
+                <li><a href="profile.html" class="nav-item">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Results Workspace -->
+    <main class="result-workspace-container" id="report-content-area">
+        
+        <!-- Header Banner -->
+        <header class="result-header glass">
+            <div>
+                <span class="badge glass"><i class="fa-solid fa-award text-glow"></i> Session Evaluation</span>
+                <h1>Candidate <span class="gradient-text">Performance Scorecard</span></h1>
+                <p>AI-generated diagnostic feedback based on technical accuracy, clarity, and tone.</p>
+            </div>
+            <div class="result-actions-group">
+                <button id="download-pdf-btn" class="btn btn-primary btn-glow">
+                    <i class="fa-solid fa-file-pdf"></i> Download PDF
+                </button>
+                <button id="share-result-btn" class="btn btn-secondary glass">
+                    <i class="fa-solid fa-share-nodes"></i> Share
+                </button>
+            </div>
+        </header>
+
+        <!-- Analytics Grid -->
+        <div class="result-grid">
+            
+            <!-- Left Column: Primary Score Radial & Tier -->
+            <aside class="score-card-main glass">
+                <h3>Overall Readiness</h3>
+                <div class="circular-score-wrapper">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path id="overall-score-circle" class="circle" stroke-dasharray="88, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    </svg>
+                    <div class="score-inner-text">
+                        <span id="overall-score-val">88%</span>
+                        <small>Score</small>
+                    </div>
+                </div>
+                <div class="recommendation-badge" id="overall-tier-label">Strong Hire</div>
+                <a href="dashboard.html" class="btn btn-primary btn-glow btn-full-width" style="margin-top: 2rem;">
+                    <i class="fa-solid fa-rotate-right"></i> Practice Again
+                </a>
+            </aside>
+
+            <!-- Right Column: Breakdown Telemetry Bars -->
+            <section class="breakdown-card glass">
+                <h3>Diagnostic Categories</h3>
+                <div class="metrics-list">
+                    
+                    <div class="metric-row">
+                        <div class="metric-meta">
+                            <span>Communication & Clarity</span>
+                            <strong id="score-comm-val">85%</strong>
+                        </div>
+                        <div class="progress-bar-bg"><div id="score-comm-bar" class="progress-bar-fill" style="width: 85%;"></div></div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-meta">
+                            <span>Technical Accuracy</span>
+                            <strong id="score-tech-val">90%</strong>
+                        </div>
+                        <div class="progress-bar-bg"><div id="score-tech-bar" class="progress-bar-fill" style="width: 90%;"></div></div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-meta">
+                            <span>Grammar & Vocabulary</span>
+                            <strong id="score-gram-val">92%</strong>
+                        </div>
+                        <div class="progress-bar-bg"><div id="score-gram-bar" class="progress-bar-fill" style="width: 92%;"></div></div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-meta">
+                            <span>Confidence & Pacing</span>
+                            <strong id="score-conf-val">80%</strong>
+                        </div>
+                        <div class="progress-bar-bg"><div id="score-conf-bar" class="progress-bar-fill" style="width: 80%;"></div></div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-meta">
+                            <span>Professional Sentiment</span>
+                            <strong id="score-prof-val">95%</strong>
+                        </div>
+                        <div class="progress-bar-bg"><div id="score-prof-bar" class="progress-bar-fill" style="width: 95%;"></div></div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        <!-- Qualitative AI Feedback Row -->
+        <div class="feedback-grid">
+            <div class="feedback-box glass">
+                <h4><i class="fa-solid fa-circle-check text-glow" style="color: var(--accent-neon);"></i> Key Strengths</h4>
+                <ul id="strengths-list-container" class="feedback-list">
+                    <li>Maintained clear structured reasoning across domain questions.</li>
+                    <li>Articulated solution frameworks with relevant technical terminology.</li>
+                    <li>Responded within optimal pacing thresholds.</li>
+                </ul>
+            </div>
+
+            <div class="feedback-box glass">
+                <h4><i class="fa-solid fa-triangle-exclamation text-glow" style="color: var(--accent-warn);"></i> Areas for Improvement</h4>
+                <ul id="weaknesses-list-container" class="feedback-list">
+                    <li>Elaborate further on concrete quantitative project metrics.</li>
+                    <li>Structure behavioral answers strictly using the STAR methodology.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AI Coach Strategic Advice -->
+        <section class="advice-card glass">
+            <h4><i class="fa-solid fa-lightbulb text-glow"></i> AI Actionable Guidance</h4>
+            <p id="suggestions-body-text">
+                Focus on highlighting direct business outcomes and system performance trade-offs in future responses. Practice incorporating explicit quantitative data points when describing past architectural or situational achievements.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- JS Scripts -->
+    <script src="js/utils.js"></script>
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/result.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Background Canvas Engine
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+                resize(); window.addEventListener('resize', resize);
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2 + 0.5;
+                        this.speedX = Math.random() * 0.3 - 0.15;
+                        this.speedY = Math.random() * 0.3 - 0.15;
+                    }
+                    update() {
+                        this.x += this.speedX; this.y += this.speedY;
+                        if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                        if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+                for(let i=0; i<40; i++) particles.push(new Particle());
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>

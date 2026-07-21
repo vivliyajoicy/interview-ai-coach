@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Master Your Next Interview</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base App Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+    <!-- Background Layering: Blobs & Canvas Particles -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Global Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid afa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <div class="menu-toggle" id="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <ul class="nav-menu" id="nav-links">
+                <li><a href="index.html" class="nav-item active">Home</a></li>
+                <li><a href="#features" class="nav-item">Features</a></li>
+                <li><a href="about.html" class="nav-item">About</a></li>
+                <li><a href="contact.html" class="nav-item">Contact</a></li>
+                <li><a href="leaderboard.html" class="nav-item">Leaderboard</a></li>
+                <li><a href="login.html" class="nav-btn-link"><button class="btn btn-secondary glass">Login</button></a></li>
+                <li><a href="dashboard.html" class="nav-btn-link"><button class="btn btn-primary btn-glow">Dashboard</button></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="badge glass">
+                    <i class="fa-solid fa-sparkles text-glow"></i> Powered by Gemini 1.5 Pro
+                </div>
+                <h1>Elevate Your Career with <br><span class="gradient-text dynamic-typing">AI-Powered Interviews</span></h1>
+                <p class="hero-subtitle">
+                    Practice realistic role-specific questions, receive hyper-targeted communication analytics, correct grammar, and build bulletproof confidence using real-time generative feedback.
+                </p>
+                <div class="hero-actions">
+                    <a href="dashboard.html" class="btn btn-primary btn-lg btn-glow">Start Practicing Free</a>
+                    <a href="#features" class="btn btn-secondary btn-lg glass"><i class="fa-solid fa-circle-play"></i> Learn More</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="interactive-glass-card glass floating-anim">
+                    <div class="card-header-ui">
+                        <div class="ui-dots"><span></span><span></span><span></span></div>
+                        <div class="ui-title">AI Evaluation Matrix</div>
+                    </div>
+                    <div class="card-body-ui">
+                        <div class="metrics-row">
+                            <span class="metric-label">Technical Correctness</span>
+                            <div class="progress-bar-container glass">
+                                <div class="progress-bar-fill progress-glow" style="width: 92%"></div>
+                            </div>
+                            <span class="metric-val">92%</span>
+                        </div>
+                        <div class="metrics-row">
+                            <span class="metric-label">Communication & Clarity</span>
+                            <div class="progress-bar-container glass">
+                                <div class="progress-bar-fill progress-glow-alt" style="width: 88%"></div>
+                            </div>
+                            <span class="metric-val">88%</span>
+                        </div>
+                        <div class="metrics-row">
+                            <span class="metric-label">Confidence Index</span>
+                            <div class="progress-bar-container glass">
+                                <div class="progress-bar-fill progress-glow-three" style="width: 95%"></div>
+                            </div>
+                            <span class="metric-val">95%</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-ui">
+                        <i class="fa-solid fa-circle-check feedback-success-icon"></i> 
+                        <span class="feedback-text-snippet">Excellent situational handling and framework usage.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Platform Operational Statistics Section -->
+    <section class="stats-section">
+        <div class="stats-container grid-4">
+            <div class="stat-card glass counter-box">
+                <div class="stat-icon-wrapper"><i class="fa-solid fa-users"></i></div>
+                <h3 class="counter" data-target="45000">0</h3>
+                <p>Students Practiced</p>
+            </div>
+            <div class="stat-card glass counter-box">
+                <div class="stat-icon-wrapper"><i class="fa-solid fa-laptop-code"></i></div>
+                <h3 class="counter" data-target="128000">0</h3>
+                <p>Interviews Completed</p>
+            </div>
+            <div class="stat-card glass counter-box">
+                <div class="stat-icon-wrapper"><i class="fa-solid fa-star text-glow"></i></div>
+                <h3 class="counter-float" data-target="4.9">0.0</h3>
+                <p>Average User Rating</p>
+            </div>
+            <div class="stat-card glass counter-box">
+                <div class="stat-icon-wrapper"><i class="fa-solid fa-award"></i></div>
+                <h3 class="counter" data-target="94">0</h3>
+                <p>Placement Success Rate %</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Key Features Blueprint -->
+    <section id="features" class="features-section">
+        <div class="section-heading-wrapper">
+            <h2 class="section-title text-center">Engineered to Guarantee <span class="gradient-text">Interview Mastery</span></h2>
+            <p class="section-subtitle text-center">A comprehensive toolchain designed by recruiting experts and driven by enterprise-grade AI algorithms.</p>
+        </div>
+        <div class="features-container grid-3">
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+                <h3>Dynamic AI Interviewer</h3>
+                <p>Experience contextual follow-up questions generated dynamically based on your precise answers, creating realistic conversational pressure.</p>
+            </div>
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+                <h3>Voice & Speech Processing</h3>
+                <p>Leverage low-latency Web Speech integration to record vocal inputs, complete with automatic speech-to-text transcription models.</p>
+            </div>
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                <h3>Instant Diagnostic Feedback</h3>
+                <p>Review deeply granular scorecards grading your semantic grammar, vocal pacing, emotional sentiment, and technical precision.</p>
+            </div>
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-file-invoice"></i></div>
+                <h3>Intelligent Resume Parsing</h3>
+                <p>Upload your professional resume to generate highly tailored operational scenarios mapping directly to your historical tech stacks.</p>
+            </div>
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-sliders"></i></div>
+                <h3>Tailored Difficulty Tiers</h3>
+                <p>Configure tailored experiences across Easy, Medium, and Hard behavioral or technical parameters to match your current target rank.</p>
+            </div>
+            <div class="feature-card glass hover-scale">
+                <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <h3>Granular Progress Tracking</h3>
+                <p>Visualize structural improvements over time via persistent historical telemetry engines tracking all previous simulation scores.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Testimonials Component -->
+    <section class="testimonials-section">
+        <div class="section-heading-wrapper">
+            <h2 class="section-title text-center">Success Stories From <span class="gradient-text">Top Engineers</span></h2>
+        </div>
+        <div class="testimonials-container grid-3">
+            <div class="testimonial-card glass">
+                <div class="rating-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p class="testimonial-body">"The real-time critique of my architectural explanations helped me recognize structural gaps in my systemic reasoning. Landed an Enterprise Architect offer within three weeks."</p>
+                <div class="testimonial-user">
+                    <div class="user-avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="user-info">
+                        <h4>Marcus Vance</h4>
+                        <span>Staff Engineer at Stripe</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card glass">
+                <div class="rating-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p class="testimonial-body">"The behavioral situational training mode perfectly replicated systemic stress loops typical of executive loops. Essential runtime training framework."</p>
+                <div class="testimonial-user">
+                    <div class="user-avatar-placeholder"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div class="user-info">
+                        <h4>Elena Rostova</h4>
+                        <span>Senior Product Lead</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card glass">
+                <div class="rating-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p class="testimonial-body">"The continuous telemetry dashboard highlighted critical grammar flaws in my dynamic communications pacing. Unbelievable platform value metrics."</p>
+                <div class="testimonial-user">
+                    <div class="user-avatar-placeholder"><i class="fa-solid fa-user-astronaut"></i></div>
+                    <div class="user-info">
+                        <h4>Devon Cole</h4>
+                        <span>L5 Frontend Engineer</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enterprise-Grade Footer Component -->
+    <footer class="footer-component glass">
+        <div class="footer-grid grid-4">
+            <div class="footer-brand-column">
+                <a href="index.html" class="nav-logo">
+                    <i class="fa-solid fa-robot neon-text-icon"></i>
+                    <span class="gradient-text">InterviewCoach</span>
+                </a>
+                <p class="footer-desc">Accelerating candidate interview performance globally using predictive architectural evaluation models.</p>
+                <div class="footer-socials">
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-links-column">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="#features">Core Features</a></li>
+                    <li><a href="dashboard.html">Practice Matrix</a></li>
+                    <li><a href="leaderboard.html">Global Rankings</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-column">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="about.html">About Innovations</a></li>
+                    <li><a href="contact.html">Support Core</a></li>
+                    <li><a href="#">Privacy Framework</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-column">
+                <h4>Newsletter</h4>
+                <p>Subscribe to global runtime preparation updates.</p>
+                <div class="newsletter-form-wrapper">
+                    <input type="email" placeholder="Enter business email" class="input-field-global glass" />
+                    <button class="btn btn-primary btn-icon-only"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom-bar text-center">
+            <p>&copy; 2026 AI Interview Coach Platform Inc. Engineered for absolute technical competence.</p>
+        </div>
+    </footer>
+
+    <!-- Shared Core Utility Layer & Index Controller Setup -->
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile navigation toggle handling
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.getElementById('nav-links');
+            if(mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('nav-active');
+                    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+                    mobileMenuBtn.querySelector('i').classList.toggle('fa-xmark');
+                });
+            }
+
+            // High-performance canvas particle orchestration engine
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                
+                function resizeCanvas() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2.5 + 0.5;
+                        this.speedX = Math.random() * 0.4 - 0.2;
+                        this.speedY = Math.random() * 0.4 - 0.2;
+                        this.alpha = Math.random() * 0.5 + 0.2;
+                    }
+                    update() {
+                        this.x += this.speedX;
+                        this.y += this.speedY;
+                        if(this.x > canvas.width) this.x = 0;
+                        if(this.x < 0) this.x = canvas.width;
+                        if(this.y > canvas.height) this.y = 0;
+                        if(this.y < 0) this.y = canvas.height;
+                    }
+                    draw() {
+                        ctx.fillStyle = `rgba(0, 242, 254, ${this.alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                function initParticles() {
+                    particles = [];
+                    const count = Math.min(Math.floor(canvas.width / 12), 100);
+                    for(let i = 0; i < count; i++) {
+                        particles.push(new Particle());
+                    }
+                }
+                initParticles();
+
+                function animateParticles() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.update();
+                        p.draw();
+                    });
+                    requestAnimationFrame(animateParticles);
+                }
+                animateParticles();
+            }
+
+            // Stat counters animation engine
+            const counters = document.querySelectorAll('.counter');
+            const countersFloat = document.querySelectorAll('.counter-float');
+            
+            const runCounters = () => {
+                counters.forEach(counter => {
+                    const target = parseInt(counter.getAttribute('data-target'), 10);
+                    const speed = target / 100;
+                    const updateCount = () => {
+                        const count = parseInt(counter.innerText.replace(/,/g, ''), 10) || 0;
+                        if(count < target) {
+                            counter.innerText = Math.ceil(count + speed).toLocaleString();
+                            setTimeout(updateCount, 15);
+                        } else {
+                            counter.innerText = target.toLocaleString() + "+";
+                        }
+                    };
+                    updateCount();
+                });
+
+                countersFloat.forEach(cf => {
+                    const target = parseFloat(cf.getAttribute('data-target'));
+                    let current = 0.0;
+                    const updateFloat = () => {
+                        if(current < target) {
+                            current += 0.1;
+                            cf.innerText = current.toFixed(1);
+                            setTimeout(updateFloat, 30);
+                        } else {
+                            cf.innerText = target.toFixed(1);
+                        }
+                    };
+                    updateFloat();
+                });
+            };
+
+            // Intersection Observer to trigger numerical progression
+            const statsSection = document.querySelector('.stats-section');
+            if(statsSection) {
+                const observer = new IntersectionObserver((entries) => {
+                    if(entries[0].isIntersecting) {
+                        runCounters();
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.3 });
+                observer.observe(statsSection);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Contact & Support</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base App Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .contact-workspace-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 60px 2rem;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .contact-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Layout Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 2rem;
+        }
+
+        .contact-info-card, .contact-form-card {
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .contact-info-card h3, .contact-form-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Information Details List */
+        .info-channels-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .channel-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: var(--radius-md);
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--cyan-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        .channel-details h5 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .channel-details p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .channel-details a {
+            color: var(--cyan-glow);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .channel-details a:hover {
+            text-decoration: underline;
+        }
+
+        /* Social Connection Grid */
+        .social-connect-box h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .social-buttons-row {
+            display: flex;
+            gap: 0.85rem;
+        }
+
+        /* Form Controls */
+        .form-group-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-field {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .textarea-contact {
+            resize: vertical;
+            min-height: 130px;
+            font-family: inherit;
+        }
+
+        .status-alert-message {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .status-alert-message.success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            color: var(--accent-neon);
+        }
+
+        .status-alert-message.hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 992px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">Home</a></li>
+                <li><a href="dashboard.html" class="nav-item">Dashboard</a></li>
+                <li><a href="about.html" class="nav-item">About</a></li>
+                <li><a href="contact.html" class="nav-item active">Contact</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-glow">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="contact-workspace-container">
+        
+        <header class="contact-header">
+            <h1>Get in Touch with <span class="gradient-text">Support</span></h1>
+            <p>Have questions about Gemini API configurations, custom Enterprise seats, or platform feedback? Drop us a message.</p>
+        </header>
+
+        <div class="contact-grid">
+            
+            <!-- Info Side Panel -->
+            <aside class="contact-info-card glass">
+                <h3><i class="fa-solid fa-headset text-glow"></i> Direct Channels</h3>
+                
+                <div class="info-channels-list">
+                    <div class="channel-item">
+                        <div class="channel-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="channel-details">
+                            <h5>Email Inquiries</h5>
+                            <p><a href="mailto:support@intercoach.ai">support@intercoach.ai</a></p>
+                        </div>
+                    </div>
+
+                    <div class="channel-item">
+                        <div class="channel-icon"><i class="fa-brands fa-github"></i></div>
+                        <div class="channel-details">
+                            <h5>Open Source Core</h5>
+                            <p><a href="https://github.com" target="_blank" rel="noopener">github.com/intercoach</a></p>
+                        </div>
+                    </div>
+
+                    <div class="channel-item">
+                        <div class="channel-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div class="channel-details">
+                            <h5>Innovation Lab</h5>
+                            <p>San Francisco, CA & Remote Global Hubs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="social-connect-box">
+                    <h4>Connect on Social Platforms</h4>
+                    <div class="social-buttons-row">
+                        <a href="#" class="social-icon-btn"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fa-brands fa-discord"></i></a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Interactive Contact Form -->
+            <section class="contact-form-card glass">
+                <h3><i class="fa-solid fa-paper-plane text-glow"></i> Send a Message</h3>
+                
+                <div id="contact-status-alert" class="status-alert-message success hidden">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Thank you! Your message has been received. Our engineering team will respond within 24 hours.</span>
+                </div>
+
+                <form id="contact-support-form">
+                    <div class="form-group-row">
+                        <div class="form-field">
+                            <label for="contact-name">Full Name *</label>
+                            <input type="text" id="contact-name" class="input-field-global glass" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="contact-email">Email Address *</label>
+                            <input type="email" id="contact-email" class="input-field-global glass" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="contact-subject">Subject Matrix</label>
+                        <select id="contact-subject" class="input-field-global glass">
+                            <option value="General Inquiry">General Platform Inquiry</option>
+                            <option value="API Configuration">API Configuration & Gemini Key</option>
+                            <option value="Bug Report">Technical Bug Report</option>
+                            <option value="Enterprise Tier">Enterprise Account Plan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="contact-message">Message Details *</label>
+                        <textarea id="contact-message" class="input-field-global glass textarea-contact" placeholder="Describe your question or feedback..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-glow btn-full-width">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Inquiry
+                    </button>
+                </form>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer-component glass">
+        <div class="footer-bottom-bar text-center">
+            <p>&copy; 2026 AI Interview Coach Platform Inc. Engineered for absolute technical competence.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Form submission logic
+            const contactForm = document.getElementById('contact-support-form');
+            const alertBox = document.getElementById('contact-status-alert');
+
+            if(contactForm) {
+                contactForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    contactForm.reset();
+                    if(alertBox) {
+                        alertBox.classList.remove('hidden');
+                        setTimeout(() => {
+                            alertBox.classList.add('hidden');
+                        }, 5000);
+                    }
+                });
+            }
+
+            // Canvas Background Particles
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+                resize(); window.addEventListener('resize', resize);
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2 + 0.5;
+                        this.speedX = Math.random() * 0.3 - 0.15;
+                        this.speedY = Math.random() * 0.3 - 0.15;
+                    }
+                    update() {
+                        this.x += this.speedX; this.y += this.speedY;
+                        if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                        if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+                for(let i=0; i<40; i++) particles.push(new Particle());
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>

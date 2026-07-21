@@ -1,0 +1,142 @@
+/* ==========================================================================
+   AI INTERVIEW COACH - LOGIN PAGE SPECIFIC STYLESHEET (css/login.css)
+   ========================================================================== */
+
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    box-shadow: var(--shadow-neon);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header {
+    margin-bottom: 2.5rem;
+}
+
+.brand-badge {
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--cyan-glow);
+    background: rgba(0, 242, 254, 0.08);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    margin-bottom: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.login-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.login-subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Auth Message Alert Boxes */
+.auth-message-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 0, 127, 0.1);
+    border: 1px solid rgba(255, 0, 127, 0.2);
+    color: #ff4a9e;
+    transition: var(--transition-smooth);
+}
+
+.auth-message-box.hidden {
+    display: none !important;
+}
+
+.auth-message-box.success {
+    background: rgba(57, 255, 20, 0.1);
+    border: 1px solid rgba(57, 255, 20, 0.2);
+    color: var(--accent-neon);
+}
+
+.btn-full-width {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.google-icon-brand {
+    font-size: 1.2rem;
+    margin-right: 0.25rem;
+    color: #000;
+}
+
+/* Loading Overlay Engine CSS Rules */
+.loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 15, 29, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: var(--transition-smooth);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none !important;
+}
+
+.spinner-container {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 242, 254, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--cyan-glow);
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+}
+
+.spinner-caption {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Viewport Adjustments */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <div class="menu-toggle" id="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <ul class="nav-menu" id="nav-links">
+                <li><a href="dashboard.html" class="nav-item active">Dashboard</a></li>
+                <li><a href="leaderboard.html" class="nav-item">Leaderboard</a></li>
+                <li><a href="profile.html" class="nav-item">Profile</a></li>
+                <li>
+                    <button id="theme-toggle-btn" class="btn btn-secondary glass btn-icon-only">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button id="logoutBtn" class="btn btn-secondary glass">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Workspace -->
+    <main class="dashboard-wrapper">
+        <!-- Top Welcoming & Profile Row -->
+        <header class="dashboard-header glass">
+            <div class="user-greeting-wrapper">
+                <div class="profile-avatar-container">
+                    <img id="dashboard-user-photo" src="https://via.placeholder.com/80" alt="User Profile" class="user-photo-fallback">
+                    <div class="status-indicator-dot"></div>
+                </div>
+                <div class="greeting-text">
+                    <h2>Welcome Back, <span id="dashboard-user-name" class="gradient-text">Candidate</span>!</h2>
+                    <p>Ready to excel? Track your performance adjustments and initiate your next simulation environment below.</p>
+                </div>
+            </div>
+            <div class="quick-status-badge glass">
+                <i class="fa-solid fa-fire-flame-curved text-glow"></i>
+                <span>3 Day Streak</span>
+            </div>
+        </header>
+
+        <!-- Analytics Telemetry Viewport -->
+        <section class="metrics-grid grid-4">
+            <div class="metric-widget glass">
+                <div class="widget-header">
+                    <span>Overall Practice Rating</span>
+                    <i class="fa-solid fa-chart-line widget-icon-cyan"></i>
+                </div>
+                <div class="widget-main-value">84%</div>
+                <div class="widget-sub-caption text-glow">+4% from last simulation</div>
+            </div>
+            <div class="metric-widget glass">
+                <div class="widget-header">
+                    <span>Simulations Completed</span>
+                    <i class="fa-solid fa-circle-check widget-icon-purple"></i>
+                </div>
+                <div class="widget-main-value" id="stats-total-interviews">12</div>
+                <div class="widget-sub-caption">Target: 20 sessions</div>
+            </div>
+            <div class="metric-widget glass">
+                <div class="widget-header">
+                    <span>Today's Track Progress</span>
+                    <i class="fa-solid fa-bullseye widget-icon-warn"></i>
+                </div>
+                <div class="widget-main-value">2 / 3</div>
+                <div class="widget-progress-container glass">
+                    <div class="widget-progress-fill" style="width: 66.6%"></div>
+                </div>
+            </div>
+            <div class="metric-widget glass">
+                <div class="widget-header">
+                    <span>Global Badge Ranking</span>
+                    <i class="fa-solid fa-trophy widget-icon-gold"></i>
+                </div>
+                <div class="widget-main-value">Top 8%</div>
+                <div class="widget-sub-caption">Gold Tier Specialist</div>
+            </div>
+        </section>
+
+        <!-- Core Session Configuration Console -->
+        <div class="dashboard-body-layout">
+            <section class="session-configurator-box glass">
+                <h3><i class="fa-solid fa-sliders text-glow"></i> Setup Training Parameters</h3>
+                <form id="interview-setup-form" class="setup-form-element">
+                    
+                    <!-- Category Pick Grid -->
+                    <div class="form-group-block">
+                        <label class="input-label-header">Select Target Domain Matrix</label>
+                        <div class="category-pick-grid">
+                            <label class="category-tile glass active">
+                                <input type="radio" name="interview-category" value="Technical" checked hidden>
+                                <i class="fa-solid fa-code"></i>
+                                <span>Technical</span>
+                            </label>
+                            <label class="category-tile glass">
+                                <input type="radio" name="interview-category" value="HR" hidden>
+                                <i class="fa-solid fa-users-gears"></i>
+                                <span>HR / Culture</span>
+                            </label>
+                            <label class="category-tile glass">
+                                <input type="radio" name="interview-category" value="Behavioral" hidden>
+                                <i class="fa-solid fa-comments"></i>
+                                <span>Behavioral</span>
+                            </label>
+                            <label class="category-tile glass">
+                                <input type="radio" name="interview-category" value="MBA" hidden>
+                                <i class="fa-solid fa-briefcase"></i>
+                                <span>MBA Track</span>
+                            </label>
+                            <label class="category-tile glass">
+                                <input type="radio" name="interview-category" value="Group Discussion" hidden>
+                                <i class="fa-solid fa-people-group"></i>
+                                <span>Group Discuss</span>
+                            </label>
+                            <label class="category-tile glass">
+                                <input type="radio" name="interview-category" value="Aptitude" hidden>
+                                <i class="fa-solid fa-calculator"></i>
+                                <span>Aptitude</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Difficulty Toggle Tiers -->
+                    <div class="form-group-block">
+                        <label class="input-label-header">Calibrate Simulation Complexity</label>
+                        <div class="difficulty-toggle-wrapper glass">
+                            <label class="diff-btn active">
+                                <input type="radio" name="interview-difficulty" value="Easy" checked hidden>
+                                <span>Easy</span>
+                            </label>
+                            <label class="diff-btn">
+                                <input type="radio" name="interview-difficulty" value="Medium" hidden>
+                                <span>Medium</span>
+                            </label>
+                            <label class="diff-btn">
+                                <input type="radio" name="interview-difficulty" value="Hard" hidden>
+                                <span>Hard</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Action Execution Buttons -->
+                    <div class="setup-actions-row">
+                        <button type="submit" class="btn btn-primary btn-glow btn-lg">
+                            <i class="fa-solid fa-play"></i> Initialize AI Session
+                        </button>
+                        <button type="button" id="continue-prev-btn" class="btn btn-secondary glass btn-lg">
+                            <i class="fa-solid fa-rotate-left"></i> Resume Last Session
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Sidebar Context Feed Elements -->
+            <aside class="dashboard-sidebar-column">
+                <!-- Achievements Element Component -->
+                <div class="sidebar-widget-card glass">
+                    <h4>Unlocked Badges</h4>
+                    <div class="badges-mini-list">
+                        <div class="badge-item-mini glass" title="Completed 5 Technical Interviews without syntax runtime gaps">
+                            <i class="fa-solid fa-terminal item-cyan"></i>
+                            <div class="badge-item-meta"><h5>Syntax Ninja</h5><span>Tech Tier 1</span></div>
+                        </div>
+                        <div class="badge-item-mini glass" title="Maintained confidence factor index above 90%">
+                            <i class="fa-solid fa-heart-pulse item-warn"></i>
+                            <div class="badge-item-meta"><h5>Bulletproof</h5><span>Confidence Arc</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities History Tracker Logs -->
+                <div class="sidebar-widget-card glass">
+                    <h4>Recent Historical Runs</h4>
+                    <div id="recent-runs-log" class="historical-logs-feed">
+                        <!-- Standard Row Item Example -->
+                        <div class="log-item-row glass">
+                            <div class="log-info-meta">
+                                <strong>Technical (Medium)</strong>
+                                <small>July 18, 2026</small>
+                            </div>
+                            <div class="log-score-badge rating-high">88%</div>
+                        </div>
+                        <div class="log-item-row glass">
+                            <div class="log-info-meta">
+                                <strong>Behavioral (Hard)</strong>
+                                <small>July 15, 2026</small>
+                            </div>
+                            <div class="log-score-badge rating-mid">76%</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Project Initialization and Auth Logic Injection Pipelines -->
+    <script src="js/utils.js"></script>
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

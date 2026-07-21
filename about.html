@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach - About Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-workspace-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 2rem 60px 2rem;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .about-hero-card {
+            border-radius: var(--radius-lg);
+            padding: 3.5rem 2.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .about-hero-card h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .about-hero-card p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Technology Matrix Section */
+        .tech-stack-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tech-card {
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            transition: var(--transition-smooth);
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan-glow);
+        }
+
+        .tech-card-icon {
+            font-size: 2.2rem;
+            color: var(--cyan-glow);
+            margin-bottom: 1rem;
+        }
+
+        .tech-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-card p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        /* Developer Profile Card */
+        .developer-profile-card {
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .developer-avatar-wrapper img {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius-lg);
+            object-fit: cover;
+            border: 2px solid var(--cyan-glow);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        .developer-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .developer-info h4 {
+            color: var(--cyan-glow);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .developer-info p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .developer-socials {
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .developer-profile-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .developer-avatar-wrapper {
+                max-width: 200px;
+                margin: 0 auto;
+            }
+
+            .developer-socials {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Background Layering -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Global Navigation Bar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fa-solid fa-robot neon-text-icon"></i>
+                <span class="gradient-text">InterCoach</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">Home</a></li>
+                <li><a href="dashboard.html" class="nav-item">Dashboard</a></li>
+                <li><a href="about.html" class="nav-item active">About</a></li>
+                <li><a href="contact.html" class="nav-item">Contact</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-glow">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Workspace -->
+    <main class="about-workspace-container">
+        
+        <!-- Platform Hero Banner -->
+        <section class="about-hero-card glass">
+            <div class="badge glass">
+                <i class="fa-solid fa-lightbulb text-glow"></i> Architecture Mission
+            </div>
+            <h1>Next-Gen Interview <span class="gradient-text">Intelligence</span></h1>
+            <p>
+                InterCoach was engineered to democratize access to high-tier candidate preparation. By pairing real-time audio transcript analysis with generative LLM frameworks, candidates can train under hyper-realistic interview conditions without high coaching fees.
+            </p>
+        </section>
+
+        <!-- Technology Stack Grid -->
+        <section class="tech-stack-section">
+            <h2>Under the Hood <span class="gradient-text">Tech Stack</span></h2>
+            <div class="tech-grid">
+                <div class="tech-card glass">
+                    <div class="tech-card-icon"><i class="fa-brands fa-google"></i></div>
+                    <h3>Gemini 1.5 Pro AI</h3>
+                    <p>Powers dynamic question generation, real-time grammar checking, technical accuracy grading, and contextual follow-ups.</p>
+                </div>
+                <div class="tech-card glass">
+                    <div class="tech-card-icon"><i class="fa-solid fa-fire"></i></div>
+                    <h3>Firebase v10 Platform</h3>
+                    <p>Handles zero-latency Google Authentication, persistent session state tracking, historical logs, and candidate telemetry metrics.</p>
+                </div>
+                <div class="tech-card glass">
+                    <div class="tech-card-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+                    <h3>Web Speech API</h3>
+                    <p>Provides speech-to-text recognition and natural audio speech synthesis for voice-driven interview simulation.</p>
+                </div>
+                <div class="tech-card glass">
+                    <div class="tech-card-icon"><i class="fa-brands fa-js"></i></div>
+                    <h3>Vanilla JS Core</h3>
+                    <p>Built with clean ES6+ Modular JavaScript without massive framework bloat, providing lightning-fast rendering times.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Developer Spotlight Card -->
+        <section class="developer-profile-card glass">
+            <div class="developer-avatar-wrapper">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400" alt="Lead Developer">
+            </div>
+            <div class="developer-info">
+                <h3>Senior Full Stack Architect</h3>
+                <h4>Lead Engineer & UI/UX Designer</h4>
+                <p>
+                    Specializing in reactive web software, responsive glassmorphic interfaces, and generative AI integrations. Passionate about empowering job seekers through modern web applications.
+                </p>
+                <div class="developer-socials">
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#" class="social-icon-btn"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer-component glass">
+        <div class="footer-bottom-bar text-center">
+            <p>&copy; 2026 AI Interview Coach Platform Inc. Engineered for absolute technical competence.</p>
+        </div>
+    </footer>
+
+    <!-- Shared Core Utility Layer -->
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Background Canvas Engine
+            const canvas = document.getElementById('particle-canvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+                resize(); window.addEventListener('resize', resize);
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2 + 0.5;
+                        this.speedX = Math.random() * 0.3 - 0.15;
+                        this.speedY = Math.random() * 0.3 - 0.15;
+                    }
+                    update() {
+                        this.x += this.speedX; this.y += this.speedY;
+                        if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                        if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.fillStyle = 'rgba(0, 242, 254, 0.3)';
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+                for(let i=0; i<40; i++) particles.push(new Particle());
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>
