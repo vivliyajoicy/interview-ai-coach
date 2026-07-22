@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Initialize Dashboard User & Telemetry Data
     loadUserDashboardStats();
+    initCompanyTrackSelector();
 
     // 2. Interactive Selection handling for Domain Category Tiles
     categoryTiles.forEach(tile => {
@@ -24,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tile.classList.add('active');
             const radio = tile.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
+
+            // Immediately save category selection
+            const categoryValue = radio ? radio.value : tile.innerText.trim();
+            localStorage.setItem('SELECTED_CATEGORY', categoryValue);
         });
     });
 
@@ -34,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             const radio = btn.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
+
+            // Immediately save difficulty selection
+            const difficultyValue = radio ? radio.value : btn.innerText.trim();
+            localStorage.setItem('SELECTED_DIFFICULTY', difficultyValue);
         });
     });
 
@@ -45,14 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedCategoryEl = document.querySelector('input[name="interview-category"]:checked');
             const selectedDifficultyEl = document.querySelector('input[name="interview-difficulty"]:checked');
 
-            const category = selectedCategoryEl ? selectedCategoryEl.value : 'Technical';
-            const difficulty = selectedDifficultyEl ? selectedDifficultyEl.value : 'Medium';
+            const category = selectedCategoryEl ? selectedCategoryEl.value : (localStorage.getItem('SELECTED_CATEGORY') || 'Technical');
+            const difficulty = selectedDifficultyEl ? selectedDifficultyEl.value : (localStorage.getItem('SELECTED_DIFFICULTY') || 'Medium');
+            const company = localStorage.getItem('SELECTED_COMPANY') || 'General';
+
+            // Explicitly sync individual keys used by interview.js
+            localStorage.setItem('SELECTED_CATEGORY', category);
+            localStorage.setItem('SELECTED_DIFFICULTY', difficulty);
 
             // Create new session telemetry object
             const sessionData = {
                 id: 'sess_' + Date.now(),
                 category: category,
                 difficulty: difficulty,
+                company: company,
                 currentQuestionIndex: 0,
                 totalQuestions: 5,
                 answers: [],
@@ -105,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const historyData = JSON.parse(localStorage.getItem('intercoach_history') || '[]');
 
         if (totalInterviewsCount) {
-            totalInterviewsCount.innerText = historyData.length || 12; // Default fallback to match mock UI
+            totalInterviewsCount.innerText = historyData.length || 12;
         }
 
         if (recentRunsContainer && historyData.length > 0) {
@@ -132,3 +147,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+/* ==========================================================================
+   Company Track Selection Engine
+   ========================================================================== */
+function initCompanyTrackSelector() {
+    const companyPills = document.querySelectorAll('.company-pill');
+    const badgeText = document.getElementById('selected-company-badge');
+
+    if (!localStorage.getItem('SELECTED_COMPANY')) {
+        localStorage.setItem('SELECTED_COMPANY', 'General');
+    }
+
+    const currentSaved = localStorage.getItem('SELECTED_COMPANY');
+
+    companyPills.forEach(pill => {
+        if (pill.dataset.company === currentSaved) {
+            pill.classList.add('active');
+            if (badgeText) badgeText.textContent = `Active: ${currentSaved} Mode`;
+        } else {
+            pill.classList.remove('active');
+        }
+
+        pill.addEventListener('click', () => {
+            companyPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+
+            const selectedCompany = pill.dataset.company;
+            localStorage.setItem('SELECTED_COMPANY', selectedCompany);
+
+            if (badgeText) {
+                badgeText.textContent = `Active: ${selectedCompany} Mode`;
+            }
+        });
+    });
+}

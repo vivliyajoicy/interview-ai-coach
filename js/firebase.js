@@ -7,8 +7,20 @@ import {
     getAuth, 
     GoogleAuthProvider 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    doc, 
+    updateDoc, 
+    arrayUnion, 
+    query, 
+    orderBy, 
+    where, 
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase Configuration Object
 const firebaseConfig = {
     apiKey: "AIzaSyA8e7jlqSYqURVudAGTUb_YRKs-Pru-w6E",
     authDomain: "inter-coach.firebaseapp.com",
@@ -19,19 +31,16 @@ const firebaseConfig = {
     measurementId: "G-75QPLJ4HNM"
 };
 
-// Initialize Firebase App Instance
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication & Google Provider
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// Configure Google Auth Provider Scopes & Custom Parameters
 provider.addScope('profile');
 provider.addScope('email');
-provider.setCustomParameters({
-    prompt: 'select_account'
-});
+provider.setCustomParameters({ prompt: 'select_account' });
 
-// Export Auth Service Interfaces for Shared Modules
-export { app, auth, provider };
+export { 
+    app, auth, db, provider, 
+    collection, addDoc, getDocs, doc, updateDoc, arrayUnion, query, orderBy, where, serverTimestamp 
+};

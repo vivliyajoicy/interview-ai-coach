@@ -1,357 +1,341 @@
 /* ==========================================================================
-   AI INTERVIEW COACH - LIVE SIMULATION CORE (js/interview.js)
+   AI INTERVIEW COACH - INTERVIEW ENGINE WITH VOICE & LIVE TIMER (js/interview.js)
    ========================================================================== */
 
-import { formatTime, showToast, speakText, STORAGE_KEYS } from './utils.js';
-
-// Configuration Defaults
-const GEMINI_API_KEY = "";
-const DEFAULT_QUESTIONS = 5;
-
-// Global Session State
-let sessionState = {
-    timerInterval: null,
-    elapsedSeconds: 0,
-    currentQuestionIndex: 0,
-    questions: [],
-    answers: [],
-    isRecording: false,
-    recognitionInstance: null,
-    status: 'initializing' // 'initializing' | 'active' | 'paused' | 'completed'
-};
+import { showToast, STORAGE_KEYS } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Validate Active Session Context
-    const activeSessionData = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION));
-    if (!activeSessionData) {
-        window.location.href = 'dashboard.html';
-        return;
+    // 1. Retrieve Selected Parameters from LocalStorage
+    const selectedCategory = localStorage.getItem('SELECTED_CATEGORY') || 'Technical';
+    const selectedDifficulty = localStorage.getItem('SELECTED_DIFFICULTY') || 'Medium';
+    const selectedCompany = localStorage.getItem('SELECTED_COMPANY') || 'General';
+
+    // 2. Domain-Aware Question Sets Generator
+    function getQuestionBank(company, category) {
+        if (category === 'Behavioral') {
+            return [
+                `Welcome to your ${company} Behavioral Interview! Tell me about a time you faced a major conflict with a team member and how you resolved it.`,
+                "Describe a situation where you had to manage competing high-priority deadlines under severe pressure.",
+                "Tell me about a professional mistake you made in a past project and what you learned from it."
+            ];
+        }
+        if (category === 'Aptitude') {
+            return [
+                "Welcome to your Aptitude Assessment! A train 150m long passes a pole in 15 seconds. What is the speed of the train in km/h?",
+                "If 5 engineers complete a system module in 12 days, how many days will 10 engineers take working at the same pace?",
+                "Solve this logic sequence: 2, 6, 12, 20, 30, ... What is the next number?"
+            ];
+        }
+        if (category === 'Group Discuss') {
+            return [
+                "Welcome to Group Discussion! Should AI replace traditional entry-level software engineering roles?",
+                "How can modern tech organizations balance rapid feature shipping with strict data privacy regulations?",
+                "What is the long-term impact of remote work on engineering innovation and company culture?"
+            ];
+        }
+
+        // Company-Specific Technical Tracks
+        const companyBanks = {
+            'Amazon': [
+                "Welcome to your Amazon Interview! Tell me about a time you had to make a decision with incomplete data. How does this align with Amazon's 'Bias for Action'?",
+                "How would you design the backend storage architecture for Amazon's Order Processing Service during peak Prime Day traffic?",
+                "Give an example of a project where you delivered results despite major technical obstacles."
+            ],
+            'Google': [
+                "Welcome to your Google Interview! How would you design a distributed rate-limiter to handle billions of API requests per minute?",
+                "Explain how you would optimize memory efficiency in a large-scale graph processing algorithm.",
+                "Describe a time you solved a complex engineering bottleneck under tight time constraints."
+            ],
+            'Microsoft': [
+                "Welcome to your Microsoft Interview! How would you design Azure's Blob Storage system for high availability and fault tolerance?",
+                "Walk me through how you implement and optimize a Thread Pool in C# or C++.",
+                "Describe a situation where you had to refactor a legacy codebase for improved modularity."
+            ],
+            'Zoho': [
+                "Welcome to your Zoho Interview! Write logic in pseudo-code to rotate a 2D matrix by 90 degrees in-place without extra memory allocation.",
+                "Explain how Garbage Collection and Memory Management work under the hood in Java.",
+                "How would you design a lightweight internal chat messaging engine for Zoho Cliq?"
+            ],
+            'TCS': [
+                "Welcome to your TCS Technical Interview! Explain the fundamental differences between Method Overriding and Method Overloading with a code example.",
+                "How do indexing and join algorithms work in SQL databases to optimize query speed?",
+                "What are the core principles of Object-Oriented Programming (OOP) and how do you apply them?"
+            ],
+            'Infosys': [
+                "Welcome to your Infosys Interview! What are the key stages of SDLC, and when would you choose Agile over Waterfall?",
+                "Explain normalization in SQL databases with 1NF, 2NF, and 3NF examples.",
+                "How do stack and queue data structures differ in memory management and execution order?"
+            ]
+        };
+
+        return companyBanks[company] || [
+            "Welcome to your Technical Mock Interview! Can you walk me through a challenging technical project you recently completed?",
+            "How do you approach debugging a complex issue in a production environment?",
+            "Explain the trade-offs between SQL and NoSQL databases."
+        ];
     }
 
-    // 2. DOM Node Bindings
+    // 3. UI Element Bindings (Matched to interview.html IDs)
     const ui = {
-        categoryDisplay: document.getElementById('session-display-category'),
-        difficultyDisplay: document.getElementById('session-display-difficulty'),
-        timerDisplay: document.getElementById('session-timer-clock'),
-        currentIndexDisplay: document.getElementById('current-q-index'),
-        totalIndexDisplay: document.getElementById('total-q-count'),
-        progressBarFill: document.getElementById('session-progress-fill'),
-        progressLabel: document.getElementById('progress-percent-lbl'),
-        chatViewport: document.getElementById('chat-stream-viewport'),
+        topCategoryLabel: document.getElementById('session-display-category'),
+        topDifficultyLabel: document.getElementById('session-display-difficulty'),
+        currentQuestionText: document.getElementById('current-ai-question-text'),
+        currentQIndex: document.getElementById('current-q-index'),
+        totalQCount: document.getElementById('total-q-count'),
+        progressFill: document.getElementById('session-progress-fill'),
+        progressPercentLbl: document.getElementById('progress-percent-lbl'),
         answerInput: document.getElementById('answer-text-area'),
         submitBtn: document.getElementById('submit-answer-btn'),
+        skipBtn: document.getElementById('skip-question-shortcut-btn'),
         micBtn: document.getElementById('toggle-mic-voice-btn'),
         micIcon: document.getElementById('mic-icon-state'),
-        waveformPanel: document.getElementById('audio-waveform-panel'),
+        timerDisplay: document.getElementById('session-timer-clock'), // Line 68 in interview.html
         pauseBtn: document.getElementById('pause-session-btn'),
         terminateBtn: document.getElementById('terminate-session-btn'),
         modalOverlay: document.getElementById('session-modal-overlay'),
-        modalResume: document.getElementById('modal-action-primary'),
-        modalDiscard: document.getElementById('modal-action-secondary')
+        modalPrimary: document.getElementById('modal-action-primary'),
+        modalSecondary: document.getElementById('modal-action-secondary')
     };
 
-    // 3. Setup Initial UI Bindings from LocalStorage
-    ui.categoryDisplay.innerText = activeSessionData.category || "Technical";
-    ui.difficultyDisplay.innerText = activeSessionData.difficulty || "Medium";
-    ui.totalIndexDisplay.innerText = activeSessionData.totalQuestions || DEFAULT_QUESTIONS;
-    sessionState.questions = activeSessionData.questions || [];
-    sessionState.answers = activeSessionData.answers || [];
-    sessionState.currentQuestionIndex = activeSessionData.currentQuestionIndex || 0;
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let isListening = false;
+    let recognition = null;
 
-    // 4. Initialize Core Engine
-    initializeSimulationEngine();
+    // --- LIVE TIMER ENGINE ---
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let isPaused = false;
 
-    /**
-     * Engine Bootloader Pipeline
-     */
-    async function initializeSimulationEngine() {
-        startTimer();
-        
-        if (sessionState.questions.length === 0) {
-            appendAIPacket("Initializing neural matrix... connecting to HR evaluation parameters...");
-            await fetchAIQuestions(activeSessionData.category, activeSessionData.difficulty);
-        } else {
-            renderHistoricalChatState();
-            askCurrentQuestion();
-        }
-
-        setupSpeechRecognition();
-        bindControlListeners();
-    }
-
-    /**
-     * Fetches Scenario Questions using Gemini API
-     */
-    async function fetchAIQuestions(domain, difficulty) {
-        // If no key is set or still default, use backup matrix
-        if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") {
-            sessionState.questions = [
-                `Can you walk me through a recent ${domain} scenario where you faced a significant challenge?`,
-                `Explain a core concept related to ${domain} at a ${difficulty} difficulty level.`,
-                `How do you handle high-pressure deadlines when working on ${domain} tasks?`,
-                `Describe a time you received constructive criticism regarding your ${domain} performance.`,
-                `Where do you see your technical mastery in ${domain} evolving over the next two years?`
-            ];
-            activeSessionData.questions = sessionState.questions;
-            localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(activeSessionData));
-            askCurrentQuestion();
-            return;
-        }
-
-        try {
-            const promptText = `Generate 5 realistic interview questions for a candidate practicing for a ${domain} interview at a ${difficulty} difficulty level. Return ONLY a plain JSON array of 5 strings, like: ["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]`;
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
-                })
-            });
-
-            const data = await response.json();
-            const rawText = data.candidates[0].content.parts[0].text;
-            
-            // Clean markdown formatting if returned
-            const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-            sessionState.questions = JSON.parse(cleanJson);
-
-            activeSessionData.questions = sessionState.questions;
-            localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(activeSessionData));
-            askCurrentQuestion();
-
-        } catch (error) {
-            console.error("Gemini API Error:", error);
-            showToast("Gemini API connection error. Loading backup question matrix.", "error");
-            
-            // Fallback questions if API quota/network fails
-            sessionState.questions = [
-                `Can you walk me through a recent ${domain} scenario where you faced a significant challenge?`,
-                `Explain a core concept related to ${domain} at a ${difficulty} difficulty level.`,
-                `How do you handle high-pressure deadlines when working on ${domain} tasks?`,
-                `Describe a time you received constructive criticism regarding your ${domain} performance.`,
-                `Where do you see your technical mastery in ${domain} evolving over the next two years?`
-            ];
-            activeSessionData.questions = sessionState.questions;
-            localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(activeSessionData));
-            askCurrentQuestion();
-        }
-    }
-    /**
-     * Executes the Current Question Block
-     */
-    function askCurrentQuestion() {
-        const questionText = sessionState.questions[sessionState.currentQuestionIndex];
-        
-        // Update UI
-        ui.currentIndexDisplay.innerText = sessionState.currentQuestionIndex + 1;
-        updateProgressBar();
-        
-        // Push AI Packet to UI
-        appendAIPacket(questionText);
-        
-        // Speak AI Output
-        speakText(questionText);
-        sessionState.status = 'active';
-    }
-
-    /**
-     * Renders Chat Packets
-     */
-    function appendAIPacket(text) {
-        const packet = document.createElement('div');
-        packet.className = 'msg-packet packet-ai';
-        packet.innerHTML = `
-            <div class="packet-avatar"><i class="fa-solid fa-robot"></i></div>
-            <div class="packet-bubble glass sliding-in-left"><p>${text}</p></div>
-        `;
-        ui.chatViewport.appendChild(packet);
-        scrollToBottom();
-    }
-
-    function appendUserPacket(text) {
-        const packet = document.createElement('div');
-        packet.className = 'msg-packet packet-user';
-        packet.innerHTML = `
-            <div class="packet-avatar user-avatar-icon"><i class="fa-solid fa-user-tie"></i></div>
-            <div class="packet-bubble glass user-bubble-color"><p>${text}</p></div>
-        `;
-        ui.chatViewport.appendChild(packet);
-        scrollToBottom();
-    }
-
-    function renderHistoricalChatState() {
-        ui.chatViewport.innerHTML = '';
-        for (let i = 0; i < sessionState.currentQuestionIndex; i++) {
-            if (sessionState.questions[i]) appendAIPacket(sessionState.questions[i]);
-            if (sessionState.answers[i]) appendUserPacket(sessionState.answers[i]);
-        }
-    }
-
-    /**
-     * Telemetry & Progress
-     */
     function startTimer() {
-        sessionState.timerInterval = setInterval(() => {
-            if (sessionState.status === 'active') {
-                sessionState.elapsedSeconds++;
-                ui.timerDisplay.innerText = formatTime(sessionState.elapsedSeconds);
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!isPaused) {
+                timerSeconds++;
+                const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+                const secs = (timerSeconds % 60).toString().padStart(2, '0');
+                if (ui.timerDisplay) {
+                    ui.timerDisplay.textContent = `${mins}:${secs}`;
+                }
             }
         }, 1000);
     }
 
-    function updateProgressBar() {
-        const total = activeSessionData.totalQuestions || DEFAULT_QUESTIONS;
-        const current = sessionState.currentQuestionIndex;
-        const percentage = Math.round((current / total) * 100);
-        
-        ui.progressBarFill.style.width = `${percentage}%`;
-        ui.progressLabel.innerText = `${percentage}%`;
+    function stopTimer() {
+        if (timerInterval) clearInterval(timerInterval);
     }
 
-    function scrollToBottom() {
-        ui.chatViewport.scrollTop = ui.chatViewport.scrollHeight;
+    // Start Timer immediately on DOM ready
+    startTimer();
+
+    // Set Top Header Pills
+    if (ui.topCategoryLabel) {
+        ui.topCategoryLabel.textContent = selectedCompany !== 'General' ? `${selectedCompany} (${selectedCategory})` : selectedCategory;
+    }
+    if (ui.topDifficultyLabel) {
+        ui.topDifficultyLabel.textContent = selectedDifficulty;
     }
 
-    /**
-     * Speech Recognition Engine (Web Speech API)
-     */
-    function setupSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            ui.micBtn.disabled = true;
-            ui.micBtn.title = "Voice recognition not supported in this browser.";
-            return;
+    // Load active questions
+    const activeQuestions = getQuestionBank(selectedCompany, selectedCategory);
+    if (ui.totalQCount) ui.totalQCount.textContent = activeQuestions.length;
+
+    // --- Pause / Resume & Modal Management ---
+    if (ui.pauseBtn) {
+        ui.pauseBtn.addEventListener('click', () => {
+            isPaused = true;
+            if (ui.modalOverlay) ui.modalOverlay.classList.remove('hidden');
+        });
+    }
+
+    if (ui.modalPrimary) {
+        ui.modalPrimary.addEventListener('click', () => {
+            isPaused = false;
+            if (ui.modalOverlay) ui.modalOverlay.classList.add('hidden');
+        });
+    }
+
+    if (ui.modalSecondary || ui.terminateBtn) {
+        const exitHandler = () => {
+            stopTimer();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            window.location.href = 'dashboard.html';
+        };
+
+        if (ui.modalSecondary) ui.modalSecondary.addEventListener('click', exitHandler);
+        if (ui.terminateBtn) ui.terminateBtn.addEventListener('click', exitHandler);
+    }
+
+    // --- Voice Output (Text-To-Speech Engine) ---
+    function speakQuestion(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            
+            setTimeout(() => {
+                window.speechSynthesis.speak(utterance);
+            }, 300);
         }
+    }
 
-        sessionState.recognitionInstance = new SpeechRecognition();
-        sessionState.recognitionInstance.continuous = true;
-        sessionState.recognitionInstance.interimResults = true;
+    // --- Speech Recognition (Microphone Engine) ---
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
 
-        sessionState.recognitionInstance.onresult = (event) => {
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
                 }
-            }
-            if (finalTranscript) {
-                ui.answerInput.value += (ui.answerInput.value ? ' ' : '') + finalTranscript;
-            }
-        };
+                if (ui.answerInput) {
+                    ui.answerInput.value = transcript;
+                }
+            };
 
-        sessionState.recognitionInstance.onerror = (event) => {
-            console.error("Mic error", event.error);
-            stopRecording();
-        };
+            recognition.onerror = (err) => {
+                console.error("Mic error:", err);
+                stopListening();
+            };
 
-        sessionState.recognitionInstance.onend = () => {
-            if (sessionState.isRecording) {
-                sessionState.recognitionInstance.start(); // Keep alive if active
-            }
-        };
+            recognition.onend = () => {
+                stopListening();
+            };
+        }
     }
 
-    function toggleRecording() {
-        if (!sessionState.recognitionInstance) return;
+    initSpeechRecognition();
 
-        if (sessionState.isRecording) {
-            stopRecording();
+    function startListening() {
+        if (!recognition) {
+            initSpeechRecognition();
+        }
+
+        if (recognition) {
+            try {
+                recognition.start();
+                isListening = true;
+                if (ui.micIcon) ui.micIcon.className = "fa-solid fa-microphone-slash text-danger";
+                if (ui.micBtn) ui.micBtn.style.background = "rgba(255, 0, 85, 0.3)";
+                if (typeof showToast === 'function') showToast("Microphone active... speak clearly.", "info");
+            } catch (e) { 
+                console.error(e);
+            }
         } else {
-            startRecording();
+            alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
         }
     }
 
-    function startRecording() {
-        sessionState.isRecording = true;
-        sessionState.recognitionInstance.start();
-        ui.micBtn.classList.add('mic-recording-active');
-        ui.micIcon.classList.replace('fa-microphone', 'fa-microphone-lines');
-        ui.waveformPanel.classList.remove('hidden');
-        showToast("Listening... Speak your answer clearly.");
-    }
-
-    function stopRecording() {
-        sessionState.isRecording = false;
-        sessionState.recognitionInstance.stop();
-        ui.micBtn.classList.remove('mic-recording-active');
-        ui.micIcon.classList.replace('fa-microphone-lines', 'fa-microphone');
-        ui.waveformPanel.classList.add('hidden');
-    }
-
-    /**
-     * Interaction Handlers
-     */
-    function handleSubmission() {
-        const answer = ui.answerInput.value.trim();
-        if (!answer) {
-            showToast("Please provide a response before submitting.", "error");
-            return;
+    function stopListening() {
+        if (recognition && isListening) {
+            try { recognition.stop(); } catch(e) {}
         }
+        isListening = false;
+        if (ui.micIcon) ui.micIcon.className = "fa-solid fa-microphone";
+        if (ui.micBtn) ui.micBtn.style.background = "";
+    }
 
-        if (sessionState.isRecording) stopRecording();
+    if (ui.micBtn) {
+        ui.micBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!isListening) {
+                startListening();
+            } else {
+                stopListening();
+            }
+        });
+    }
 
-        // Save Answer
-        sessionState.answers.push(answer);
-        activeSessionData.answers = sessionState.answers;
-        activeSessionData.currentQuestionIndex = sessionState.currentQuestionIndex + 1;
-        
-        appendUserPacket(answer);
-        ui.answerInput.value = '';
+    // Render Question Function
+    function renderQuestion(index) {
+        if (index < activeQuestions.length) {
+            const qText = activeQuestions[index];
+            if (ui.currentQuestionText) ui.currentQuestionText.textContent = qText;
+            if (ui.currentQIndex) ui.currentQIndex.textContent = index + 1;
 
-        if (activeSessionData.currentQuestionIndex >= (activeSessionData.totalQuestions || DEFAULT_QUESTIONS)) {
-            finishSimulation();
+            const percent = Math.round(((index + 1) / activeQuestions.length) * 100);
+            if (ui.progressFill) ui.progressFill.style.width = `${percent}%`;
+            if (ui.progressPercentLbl) ui.progressPercentLbl.textContent = `${percent}%`;
+
+            if (ui.answerInput) ui.answerInput.value = '';
+
+            // Speak out question
+            speakQuestion(qText);
         } else {
-            sessionState.currentQuestionIndex++;
-            localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(activeSessionData));
-            setTimeout(askCurrentQuestion, 1000);
+            finishSession();
         }
     }
 
-    function finishSimulation() {
-        sessionState.status = 'completed';
-        clearInterval(sessionState.timerInterval);
-        activeSessionData.status = 'completed';
-        activeSessionData.endTime = new Date().toISOString();
-        localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(activeSessionData));
+    // Load First Question
+    renderQuestion(currentQuestionIndex);
+
+    // Skip / Next Shortcut Action
+    if (ui.skipBtn) {
+        ui.skipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            stopListening();
+            userAnswers.push("Skipped response.");
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) {
+                renderQuestion(currentQuestionIndex);
+            } else {
+                finishSession();
+            }
+        });
+    }
+
+    // Submit Action
+    if (ui.submitBtn) {
+        ui.submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            stopListening();
+            const responseText = ui.answerInput ? ui.answerInput.value.trim() : '';
+
+            if (!responseText) {
+                if (typeof showToast === 'function') {
+                    showToast("Please provide or speak an answer before submitting.", "warning");
+                } else {
+                    alert("Please provide or speak an answer before submitting.");
+                }
+                return;
+            }
+
+            userAnswers.push(responseText);
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < activeQuestions.length) {
+                renderQuestion(currentQuestionIndex);
+            } else {
+                finishSession();
+            }
+        });
+    }
+
+    function finishSession() {
+        stopTimer();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         
-        showToast("Simulation Complete! Generating Performance Matrix...", "success");
+        const sessionPayload = {
+            id: 'sess_' + Date.now(),
+            company: selectedCompany,
+            category: selectedCategory,
+            difficulty: selectedDifficulty,
+            questions: activeQuestions,
+            answers: userAnswers,
+            durationSeconds: timerSeconds,
+            timestamp: new Date().toISOString()
+        };
+
+        localStorage.setItem('CURRENT_SESSION', JSON.stringify(sessionPayload));
+        if (typeof showToast === 'function') showToast("Simulation complete! Generating evaluation report...", "success");
+
         setTimeout(() => {
             window.location.href = 'result.html';
-        }, 1500);
-    }
-
-    function bindControlListeners() {
-        ui.submitBtn.addEventListener('click', handleSubmission);
-        
-        ui.answerInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmission();
-            }
-        });
-
-        ui.micBtn.addEventListener('click', toggleRecording);
-
-        ui.pauseBtn.addEventListener('click', () => {
-            sessionState.status = 'paused';
-            ui.modalOverlay.classList.remove('hidden');
-            if (sessionState.isRecording) stopRecording();
-        });
-
-        ui.modalResume.addEventListener('click', () => {
-            sessionState.status = 'active';
-            ui.modalOverlay.classList.add('hidden');
-        });
-
-        ui.terminateBtn.addEventListener('click', () => {
-            localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
-            window.location.href = 'dashboard.html';
-        });
-
-        ui.modalDiscard.addEventListener('click', () => {
-            localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
-            window.location.href = 'dashboard.html';
-        });
+        }, 1000);
     }
 });

@@ -3,10 +3,12 @@
    ========================================================================== */
 
 import { exportToPDF, saveToHistory, showToast, STORAGE_KEYS } from './utils.js';
+import { db, collection, addDoc, serverTimestamp } from './firebase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Read completed session data from localStorage
-    const sessionData = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION));
+    // Read completed session data safely from localStorage (checking both possible keys)
+    const rawSessionData = localStorage.getItem('CURRENT_SESSION') || localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
+    const sessionData = rawSessionData ? JSON.parse(rawSessionData) : null;
 
     // Element Bindings
     const ui = {
@@ -30,13 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
         shareBtn: document.getElementById('share-result-btn')
     };
 
-    // Generate score metrics payload
+    // Generate score metrics payload based on real candidate responses
     const metrics = computeEvaluationMetrics(sessionData);
 
     // Apply metrics to view
     renderScoreCard(metrics);
 
-    // Persist result payload into user history
+    // Persist result payload into local history AND publish to live Firestore Leaderboard
     persistEvaluationRecord(sessionData, metrics);
 
     // Bind event actions
@@ -97,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const overall = Math.round((commScore + techScore + gramScore + confScore + profScore) / 5);
         const tier = overall >= 90 ? "Strong Hire" : overall >= 75 ? "Recommended Hire" : "Needs Practice";
 
+        const companyTag = session.company || 'General';
+
         return {
             overall,
             communication: commScore,
@@ -106,15 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
             professionalism: profScore,
             tier,
             strengths: [
-                `Provided detailed response depth averaging ${Math.round(avgLength)} characters per answer.`,
-                "Demonstrated relevant technical context and problem-solving framework awareness.",
+                `Provided detailed response depth for ${companyTag} track, averaging ${Math.round(avgLength)} characters per answer.`,
+                `Demonstrated relevant technical context and problem-solving framework awareness tailored to ${companyTag}.`,
                 "Maintained appropriate communication tone and professional pacing."
             ],
             weaknesses: [
                 "Include more specific metric benchmarks (e.g., latency reduction %, accuracy rates).",
                 "Refine response conciseness to avoid conversational gaps."
             ],
-            suggestions: "Practice using explicit quantitative data points when describing past architectural or situational achievements."
+            suggestions: `Practice using explicit quantitative data points when describing past achievements for ${companyTag} interviews.`
         };
     }
 
@@ -155,16 +159,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Store result payload to local history log
+     * Store result payload to local storage and publish to live Firestore leaderboard
      */
-    function persistEvaluationRecord(session, metrics) {
+    async function persistEvaluationRecord(session, metrics) {
+        const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER || 'USER') || '{}');
+
+        // Local Record
         const record = {
             id: session ? session.id : 'sess_' + Date.now(),
+            company: session ? session.company : 'General',
             category: session ? session.category : 'Technical',
             difficulty: session ? session.difficulty : 'Medium',
             score: metrics.overall,
             date: new Date().toISOString()
         };
         saveToHistory(record);
+
+        // Live Firebase Leaderboard Record
+        try {
+            await addDoc(collection(db, "leaderboard"), {
+                userId: user.uid || 'anon',
+                name: user.displayName || 'Pragnasheel B',
+                photo: user.photoURL || 'https://via.placeholder.com/80',
+                company: session ? session.company : 'General',
+                overallScore: metrics.overall,
+                technical: metrics.technical,
+                communication: metrics.communication,
+                category: session ? session.category : 'General',
+                difficulty: session ? session.difficulty : 'Medium',
+                likes: 0,
+                reviews: [],
+                timestamp: serverTimestamp(),
+                createdAt: new Date().toISOString()
+            });
+            console.log("Successfully published interview score to live community leaderboard!");
+        } catch (err) {
+            console.error("Firestore Leaderboard Sync Error:", err);
+        }
     }
 });

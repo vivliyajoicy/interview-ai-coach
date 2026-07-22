@@ -50,23 +50,60 @@
 
     <!-- Main Dashboard Workspace -->
     <main class="dashboard-wrapper">
-        <!-- Top Welcoming & Profile Row -->
-        <header class="dashboard-header glass">
-            <div class="user-greeting-wrapper">
-                <div class="profile-avatar-container">
-                    <img id="dashboard-user-photo" src="https://via.placeholder.com/80" alt="User Profile" class="user-photo-fallback">
-                    <div class="status-indicator-dot"></div>
-                </div>
-                <div class="greeting-text">
-                    <h2>Welcome Back, <span id="dashboard-user-name" class="gradient-text">Candidate</span>!</h2>
-                    <p>Ready to excel? Track your performance adjustments and initiate your next simulation environment below.</p>
-                </div>
+       <!-- Top Welcoming & Profile Row -->
+<header class="dashboard-header glass" style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- User Greeting & Quick Actions Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 1rem;">
+        <div class="user-greeting-wrapper">
+            <div class="profile-avatar-container">
+                <img id="dashboard-user-photo" src="https://via.placeholder.com/80" alt="User Profile" class="user-photo-fallback">
+                <div class="status-indicator-dot"></div>
             </div>
+            <div class="greeting-text">
+                <h2>Welcome Back, <span id="dashboard-user-name" class="gradient-text">Candidate</span>!</h2>
+                <p>Ready to excel? Choose your target company and initiate your next simulation below.</p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <!-- Public Profile Quick Button -->
+            <a href="profile.html" class="btn btn-secondary glass" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fa-solid fa-globe text-glow"></i> My Public Profile
+            </a>
+
+            <!-- Streak Badge -->
             <div class="quick-status-badge glass">
                 <i class="fa-solid fa-fire-flame-curved text-glow"></i>
-                <span>3 Day Streak</span>
+                <span id="user-streak-counter">3 Day Streak</span>
             </div>
-        </header>
+        </div>
+    </div>
+
+    <!-- Target Company Selector Track -->
+    <div class="company-track-container" style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1rem; width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-building-user text-glow"></i> Select Target Company Track
+            </span>
+            <small style="color: var(--cyan-glow); font-weight: 500;" id="selected-company-badge">Active: General Mock</small>
+        </div>
+
+        <!-- Company Selection Pills -->
+        <div class="company-pills-row" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
+            <button class="company-pill active" data-company="General">🌐 General</button>
+            <button class="company-pill" data-company="Google">🔍 Google</button>
+            <button class="company-pill" data-company="Amazon">📦 Amazon</button>
+            <button class="company-pill" data-company="Microsoft">🪟 Microsoft</button>
+            <button class="company-pill" data-company="Zoho">⚡ Zoho</button>
+            <button class="company-pill" data-company="TCS">🏢 TCS</button>
+            <button class="company-pill" data-company="Infosys">💻 Infosys</button>
+            <button class="company-pill" data-company="Wipro">💼 Wipro</button>
+            <button class="company-pill" data-company="Apple">🍎 Apple</button>
+            <button class="company-pill" data-company="Netflix">🎬 Netflix</button>
+        </div>
+    </div>
+</header>
 
         <!-- Analytics Telemetry Viewport -->
         <section class="metrics-grid grid-4">

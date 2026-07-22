@@ -386,4 +386,32 @@
     .setup-actions-row .btn {
         width: 100%;
     }
+}/* ==========================================================================
+   Company Mode Pill Styles
+   ========================================================================== */
+.company-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.15));
+    color: var(--text-muted, #94a3b8);
+    padding: 0.45rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.company-pill:hover {
+    background: rgba(0, 242, 254, 0.15);
+    color: #00f2fe;
+    border-color: #00f2fe;
+}
+
+.company-pill.active {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #0a0f1d;
+    font-weight: 700;
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
 }

@@ -124,6 +124,41 @@
             font-weight: 500;
         }
 
+        /* Real Metrics Telemetry Cards */
+        .real-telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .telemetry-card {
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .telemetry-card header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .telemetry-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .telemetry-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         /* Badges & Achievements Grid */
         .badges-grid {
             display: grid;
@@ -228,6 +263,22 @@
 
     <!-- Main Workspace -->
     <main class="profile-wrapper">
+        
+        <!-- Public Shareable Profile Banner -->
+        <div class="public-profile-banner glass" style="padding: 1.25rem 1.5rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border: 1px solid rgba(0, 242, 254, 0.25);">
+            <div>
+                <span class="badge glass" style="color: var(--cyan-glow); font-size: 0.75rem; padding: 0.25rem 0.75rem;">
+                    <i class="fa-solid fa-globe"></i> Shareable Candidate Portfolio
+                </span>
+                <h3 style="margin-top: 0.5rem; font-size: 1.1rem; color: #fff;">
+                    intercoach.app/u/<span id="profile-url-slug" class="gradient-text">pragnasheel</span>
+                </h3>
+            </div>
+            <button id="copy-portfolio-link-btn" class="btn btn-primary btn-glow">
+                <i class="fa-solid fa-copy"></i> Copy Shareable Link
+            </button>
+        </div>
+
         <!-- Header Profile Card -->
         <header class="profile-card-header glass">
             <div class="user-meta-group">
@@ -249,6 +300,42 @@
                 </div>
             </div>
         </header>
+
+        <!-- Real Performance Analytics Grid -->
+        <section class="real-telemetry-grid">
+            <div class="telemetry-card glass">
+                <header>
+                    <span>🏆 Global Rank</span>
+                    <i class="fa-solid fa-trophy" style="color: #ffbd2e;"></i>
+                </header>
+                <div id="telemetry-rank-val" class="telemetry-val gradient-text">Top 5%</div>
+                <div class="telemetry-desc">Based on verified AI evaluations</div>
+            </div>
+            <div class="telemetry-card glass">
+                <header>
+                    <span>⭐ Average Rating</span>
+                    <i class="fa-solid fa-star" style="color: #b224ef;"></i>
+                </header>
+                <div id="telemetry-overall-val" class="telemetry-val">88%</div>
+                <div class="telemetry-desc">Calculated across past mock runs</div>
+            </div>
+            <div class="telemetry-card glass">
+                <header>
+                    <span>🗣️ English Proficiency</span>
+                    <i class="fa-solid fa-comments" style="color: var(--cyan-glow);"></i>
+                </header>
+                <div id="telemetry-english-val" class="telemetry-val">86%</div>
+                <div class="telemetry-desc">Grammar, structure & articulation</div>
+            </div>
+            <div class="telemetry-card glass">
+                <header>
+                    <span>💻 Technical Depth</span>
+                    <i class="fa-solid fa-code" style="color: var(--accent-neon);"></i>
+                </header>
+                <div id="telemetry-tech-val" class="telemetry-val">90%</div>
+                <div class="telemetry-desc">Domain terminology & system design</div>
+            </div>
+        </section>
 
         <!-- Main Grid Layout -->
         <div class="profile-content-grid">
@@ -279,8 +366,8 @@
             <section class="main-section-card glass">
                 <h3 class="card-heading-title"><i class="fa-solid fa-award text-glow"></i> Badges & Certifications</h3>
                 
-                <!-- Unlocked Badges -->
-                <div class="badges-grid">
+                <!-- Unlocked Badges Container -->
+                <div id="unlocked-badges-container" class="badges-grid">
                     <div class="badge-card-item glass">
                         <i class="fa-solid fa-code"></i>
                         <span>Tech Specialist</span>
