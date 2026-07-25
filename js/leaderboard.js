@@ -2,13 +2,15 @@
    AI INTERVIEW COACH - LEADERBOARD & PEER REVIEW CONTROLLER (js/leaderboard.js)
    ========================================================================== */
 
-import { db, collection, getDocs, doc, updateDoc, increment, arrayUnion, query, orderBy } from './firebase.js';
+import { db, auth, collection, getDocs, doc, setDoc, updateDoc, increment, arrayUnion, query, orderBy } from './firebase.js';
 import { showToast } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('leaderboard-table-body');
     const podiumContainer = document.getElementById('podium-container');
     const reviewModal = document.getElementById('review-modal');
+
+    let selectedStarRating = 5;
 
     loadCommunityLeaderboard();
 
@@ -17,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function loadCommunityLeaderboard() {
         try {
+            if (!db) return;
+
+            // Query live leaderboard collection
             const q = query(collection(db, "leaderboard"), orderBy("overallScore", "desc"));
             const querySnapshot = await getDocs(q);
 
@@ -27,20 +32,67 @@ document.addEventListener('DOMContentLoaded', () => {
                     candidates.push({ id: docSnap.id, ...docSnap.data() });
                 });
             } else {
-                // Default fallback records if Firebase collection is empty
-                candidates = getFallbackCandidates();
+                // If leaderboard collection has no records, check users collection
+                const usersSnap = await getDocs(collection(db, "users"));
+                if (!usersSnap.empty) {
+                    usersSnap.forEach((userDoc) => {
+                        const uData = userDoc.data();
+                        candidates.push({
+                            id: userDoc.id,
+                            userId: userDoc.id,
+                            name: uData.displayName || 'Candidate',
+                            photo: uData.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + (uData.displayName || 'Candidate'),
+                            company: 'General Track',
+                            category: 'Technical',
+                            overallScore: uData.lastInterviewScore || 0,
+                            technical: uData.lastInterviewScore || 0,
+                            communication: uData.lastInterviewScore || 0,
+                            likes: 0,
+                            reviews: []
+                        });
+                    });
+                }
             }
 
-            renderPodium(candidates.slice(0, 3));
-            renderTable(candidates);
+            if (candidates.length > 0) {
+                renderPodium(candidates.slice(0, 3));
+                renderTable(candidates);
+            } else {
+                renderEmptyState();
+            }
+
             bindInteractiveEvents();
 
         } catch (err) {
             console.error("Leaderboard Sync Error:", err);
-            const fallback = getFallbackCandidates();
-            renderPodium(fallback.slice(0, 3));
-            renderTable(fallback);
-            bindInteractiveEvents();
+            renderEmptyState();
+        }
+    }
+
+    /**
+     * Render empty state when zero candidates exist in Firestore
+     */
+    function renderEmptyState() {
+        if (podiumContainer) {
+            podiumContainer.innerHTML = `
+                <div class="podium-card glass rank-1" style="grid-column: 1 / -1; max-width: 500px; margin: 0 auto; text-align: center; padding: 2.5rem;">
+                    <i class="fa-solid fa-trophy" style="font-size: 3rem; color: var(--cyan-glow); margin-bottom: 1rem;"></i>
+                    <h3>Be the First on the Leaderboard!</h3>
+                    <p class="text-muted" style="margin: 0.8rem 0 1.5rem 0;">No candidate simulation scores recorded yet. Complete your first mock interview practice session to claim #1 rank!</p>
+                    <a href="dashboard.html" class="btn btn-primary btn-glow"><i class="fa-solid fa-rocket"></i> Start Practice Session</a>
+                </div>
+            `;
+        }
+
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-inbox" style="font-size: 2.5rem; margin-bottom: 0.8rem; display: block;"></i>
+                        No candidate rankings found in database. Complete an interview to register your score.
+                    </td>
+                </tr>
+            `;
         }
     }
 
@@ -50,21 +102,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPodium(top3) {
         if (!podiumContainer) return;
 
-        const ranks = ['podium-rank-1', 'podium-rank-2', 'podium-rank-3'];
+        const ranks = ['rank-1', 'rank-2', 'rank-3'];
+        const crowns = ['fa-crown text-warn', 'fa-award text-secondary', 'fa-medal text-bronze'];
         const medals = ['🥇 1st Place', '🥈 2nd Place', '🥉 3rd Place'];
 
-        podiumContainer.innerHTML = top3.map((c, i) => `
-            <div class="podium-card glass ${ranks[i] || ''}">
-                <div class="podium-badge">${medals[i] || ''}</div>
-                <img src="${c.photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + c.name}" class="podium-avatar" alt="${c.name}">
-                <h4>${c.name || 'Anonymous Candidate'}</h4>
-                <p class="text-muted">${c.company || 'General Track'} • ${c.category || 'Technical'}</p>
-                <div class="podium-score gradient-text">${c.overallScore}% Score</div>
-                <button class="upvote-btn btn-sm glass" data-id="${c.id}" style="margin-top: 10px;">
-                    <i class="fa-solid fa-thumbs-up text-glow"></i> <span class="vote-count">${c.likes || 0}</span>
-                </button>
-            </div>
-        `).join('');
+        podiumContainer.innerHTML = top3.map((c, i) => {
+            const avgStars = calculateAvgRating(c);
+            return `
+                <div class="podium-card glass ${ranks[i] || ''}">
+                    <div class="podium-crown"><i class="fa-solid ${crowns[i] || 'fa-medal'}"></i></div>
+                    <div class="podium-badge" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">${medals[i] || ''}</div>
+                    <img src="${c.photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + c.name}" class="podium-avatar" alt="${c.name}">
+                    <h4>${c.name || 'Anonymous Candidate'}</h4>
+                    <p class="text-muted" style="font-size:0.82rem;">${c.company || 'General Track'} • ${c.category || 'Technical'}</p>
+                    <div class="podium-score-tag gradient-text">${c.overallScore || 0}% Score</div>
+                    <div style="font-size: 0.85rem; color: #ffd700; margin-bottom: 0.5rem;">
+                        ${avgStars > 0 ? `⭐ ${avgStars.toFixed(1)} / 5.0` : '⭐ No ratings yet'}
+                    </div>
+                    <button class="upvote-btn btn-sm glass" data-id="${c.id}">
+                        <i class="fa-solid fa-thumbs-up text-glow"></i> <span class="vote-count">${c.likes || 0}</span> Upvotes
+                    </button>
+                </div>
+            `;
+        }).join('');
     }
 
     /**
@@ -78,11 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             row.className = 'leaderboard-row glass';
 
+            const avgStars = calculateAvgRating(c);
+            const ratingText = avgStars > 0 ? `⭐ ${avgStars.toFixed(1)}` : `⭐ Rate`;
+
             row.innerHTML = `
                 <td class="rank-col"><strong>#${index + 1}</strong></td>
                 <td class="candidate-col">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <img src="${c.photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + c.name}" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--cyan-glow);" alt="Avatar">
+                    <div class="candidate-user-cell">
+                        <img src="${c.photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + c.name}" class="candidate-avatar-mini" style="border: 1px solid var(--cyan-glow);" alt="Avatar">
                         <div>
                             <strong>${c.name || 'Anonymous Candidate'}</strong><br>
                             <small class="text-muted">${c.company || 'General Track'}</small>
@@ -90,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </td>
                 <td><span class="badge glass">${c.category || 'Technical'}</span></td>
-                <td><strong class="text-cyan" style="color: var(--cyan-glow); font-size: 1.1rem;">${c.overallScore}%</strong></td>
-                <td><small>${c.technical || 88}% / ${c.communication || 84}%</small></td>
+                <td><strong class="text-cyan" style="color: var(--cyan-glow); font-size: 1.1rem;">${c.overallScore || 0}%</strong></td>
+                <td><small>${c.technical || 0}% / ${c.communication || 0}%</small></td>
                 <td>
                     <button class="upvote-btn btn-sm glass" data-id="${c.id}">
                         <i class="fa-solid fa-thumbs-up"></i> <span class="vote-count">${c.likes || 0}</span>
@@ -99,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td>
                     <button class="review-btn btn-sm btn-secondary glass" data-id="${c.id}" data-name="${c.name || 'Candidate'}">
-                        <i class="fa-solid fa-star" style="color: #ffbd2e;"></i> Rate / Review
+                        <i class="fa-solid fa-star" style="color: #ffd700;"></i> ${ratingText}
                     </button>
                 </td>
             `;
@@ -109,7 +172,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Bind Upvotes and Peer Review Modal Controls
+     * Helper to compute candidate's average user rating
+     */
+    function calculateAvgRating(candidate) {
+        if (candidate.avgRating && typeof candidate.avgRating === 'number') {
+            return candidate.avgRating;
+        }
+        if (candidate.reviews && Array.isArray(candidate.reviews) && candidate.reviews.length > 0) {
+            const ratings = candidate.reviews.filter(r => r.rating).map(r => Number(r.rating));
+            if (ratings.length > 0) {
+                return ratings.reduce((a, b) => a + b, 0) / ratings.length;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Bind Upvotes, Star Ratings, and Peer Review Modal Controls
      */
     function bindInteractiveEvents() {
         // Upvote Buttons
@@ -134,6 +213,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Star Rating Selection inside Review Modal
+        const starIcons = document.querySelectorAll('.star-rating-select i');
+        starIcons.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = parseInt(star.dataset.rating || 5);
+                selectedStarRating = rating;
+
+                starIcons.forEach((s, idx) => {
+                    if (idx < rating) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid');
+                        s.style.color = '#ffd700';
+                    } else {
+                        s.classList.remove('fa-solid');
+                        s.classList.add('fa-regular');
+                        s.style.color = 'rgba(255, 255, 255, 0.3)';
+                    }
+                });
+            });
+        });
+
         // Peer Review Button Clicks
         document.querySelectorAll('.review-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -144,13 +244,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     reviewModal.classList.remove('hidden');
                     reviewModal.style.display = 'flex';
 
-                    // Insert candidate name into modal if title container exists
-                    const modalTitle = reviewModal.querySelector('h3, h4');
-                    if (modalTitle) modalTitle.innerHTML = `<i class="fa-solid fa-star text-warn"></i> Review ${name}`;
+                    const candidateNameEl = document.getElementById('modal-candidate-name');
+                    if (candidateNameEl) candidateNameEl.textContent = `Rate & Review Candidate: ${name}`;
 
-                    // Handle Close & Submit inside existing HTML modal
-                    const closeBtn = reviewModal.querySelector('.close-modal-btn, #close-modal-btn, .btn-secondary');
-                    const submitBtn = reviewModal.querySelector('.submit-review-btn, #submit-review-btn, .btn-primary');
+                    // Reset star UI
+                    selectedStarRating = 5;
+                    starIcons.forEach(s => {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid');
+                        s.style.color = '#ffd700';
+                    });
+
+                    const closeBtn = document.getElementById('close-modal-btn');
+                    const submitBtn = document.getElementById('submit-review-btn');
 
                     if (closeBtn) {
                         closeBtn.onclick = () => {
@@ -161,42 +267,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (submitBtn) {
                         submitBtn.onclick = async () => {
-                            const commentArea = reviewModal.querySelector('textarea');
+                            const commentArea = document.getElementById('review-input-text');
                             const comment = commentArea ? commentArea.value.trim() : '';
 
-                            if (docId && comment && db) {
+                            const activeUser = auth.currentUser || JSON.parse(localStorage.getItem('intercoach_user') || '{}');
+                            const reviewerName = activeUser.displayName || 'Anonymous Peer';
+
+                            if (docId && db) {
                                 try {
                                     const leaderboardRef = doc(db, "leaderboard", docId);
                                     await updateDoc(leaderboardRef, {
                                         reviews: arrayUnion({
-                                            reviewer: "Logged In Candidate",
-                                            comment: comment,
+                                            reviewer: reviewerName,
+                                            rating: selectedStarRating,
+                                            comment: comment || 'Rated performance.',
                                             timestamp: new Date().toISOString()
                                         })
                                     });
-                                } catch(e) { console.error(e); }
+                                } catch(e) {
+                                    console.error("Firestore Review Storage Error:", e);
+                                }
                             }
 
                             if (commentArea) commentArea.value = '';
                             reviewModal.classList.add('hidden');
                             reviewModal.style.display = 'none';
-                            if (typeof showToast === 'function') showToast("Peer feedback submitted successfully!", "success");
+                            if (typeof showToast === 'function') showToast(`Submitted ${selectedStarRating}⭐ rating for ${name}!`, "success");
+
+                            // Reload standings to display updated rating
+                            setTimeout(loadCommunityLeaderboard, 800);
                         };
                     }
                 }
             });
         });
-    }
-
-    /**
-     * Fallback Candidates List
-     */
-    function getFallbackCandidates() {
-        return [
-            { id: '1', name: 'Pragnasheel B', company: 'Microsoft Track', category: 'Behavioral', overallScore: 94, technical: 92, communication: 96, likes: 18 },
-            { id: '2', name: 'Joicy R', company: 'Amazon Track', category: 'Technical', overallScore: 91, technical: 94, communication: 88, likes: 14 },
-            { id: '3', name: 'Rahul Sharma', company: 'Zoho Track', category: 'Aptitude', overallScore: 89, technical: 90, communication: 88, likes: 9 },
-            { id: '4', name: 'Ananya Verma', company: 'Google Track', category: 'System Design', overallScore: 87, technical: 89, communication: 85, likes: 6 }
-        ];
     }
 });

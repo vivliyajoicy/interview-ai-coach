@@ -13,7 +13,10 @@ import {
     addDoc, 
     getDocs, 
     doc, 
+    setDoc,
+    getDoc,
     updateDoc, 
+    increment,
     arrayUnion, 
     query, 
     orderBy, 
@@ -42,5 +45,5 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 export { 
     app, auth, db, provider, 
-    collection, addDoc, getDocs, doc, updateDoc, arrayUnion, query, orderBy, where, serverTimestamp 
+    collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, increment, arrayUnion, query, orderBy, where, serverTimestamp 
 };

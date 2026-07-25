@@ -119,3 +119,13 @@ export function exportToPDF(elementId, filename = 'Interview_Evaluation_Report.p
 
     html2pdf().set(opt).from(element).save();
 }
+
+// Bind to window object for global availability
+if (typeof window !== 'undefined') {
+    window.STORAGE_KEYS = STORAGE_KEYS;
+    window.showToast = showToast;
+    window.formatTime = formatTime;
+    window.speakText = speakText;
+    window.saveToHistory = saveToHistory;
+    window.exportToPDF = exportToPDF;
+}

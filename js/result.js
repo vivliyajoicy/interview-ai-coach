@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { exportToPDF, saveToHistory, showToast, STORAGE_KEYS } from './utils.js';
-import { db, collection, addDoc, serverTimestamp } from './firebase.js';
+import { db, auth, collection, addDoc, doc, setDoc, serverTimestamp } from './firebase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Read completed session data safely from localStorage (checking both possible keys)
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply metrics to view
     renderScoreCard(metrics);
 
-    // Persist result payload into local history AND publish to live Firestore Leaderboard
+    // Persist result payload into local history AND publish to live Firestore Leaderboard & Interviews
     persistEvaluationRecord(sessionData, metrics);
 
     // Bind event actions
@@ -60,46 +60,117 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Compute analytics metrics based on session responses
+     * Compute REALISTIC analytics metrics based on session accuracy, depth, and duration
      */
     function computeEvaluationMetrics(session) {
         if (!session || !session.answers || session.answers.length === 0) {
             return {
-                overall: 88,
-                communication: 85,
-                grammar: 92,
-                confidence: 80,
-                technical: 90,
-                professionalism: 95,
-                tier: "Strong Hire",
-                strengths: [
-                    "Maintained clear structured reasoning across domain questions.",
-                    "Articulated solution frameworks with relevant technical terminology.",
-                    "Responded within optimal pacing thresholds."
-                ],
-                weaknesses: [
-                    "Elaborate further on concrete quantitative project metrics.",
-                    "Structure behavioral answers strictly using the STAR methodology."
-                ],
-                suggestions: "Focus on highlighting direct business outcomes and system performance trade-offs in future responses."
+                overall: 15,
+                communication: 10,
+                grammar: 20,
+                confidence: 10,
+                technical: 10,
+                professionalism: 25,
+                tier: "Needs Practice",
+                strengths: ["Session initiated."],
+                weaknesses: ["No answers were submitted or questions were skipped entirely."],
+                suggestions: "Please complete all questions with detailed explanations to receive a full score."
             };
         }
 
-        const answerCount = session.answers.length;
-        const totalCharLength = session.answers.reduce((acc, text) => acc + text.length, 0);
-        const avgLength = totalCharLength / answerCount;
-
-        // Dynamic score calculations based on response depth
-        const commScore = Math.min(95, Math.max(65, Math.floor(avgLength / 3) + 60));
-        const techScore = Math.min(98, Math.max(70, Math.floor(avgLength / 4) + 65));
-        const gramScore = 92;
-        const confScore = Math.min(94, Math.max(72, Math.floor(avgLength / 3.5) + 62));
-        const profScore = 95;
-
-        const overall = Math.round((commScore + techScore + gramScore + confScore + profScore) / 5);
-        const tier = overall >= 90 ? "Strong Hire" : overall >= 75 ? "Recommended Hire" : "Needs Practice";
-
+        const answers = session.answers;
+        const answerCount = answers.length;
+        const totalWords = answers.join(" ").trim().split(/\s+/).filter(w => w.length > 0).length;
+        const avgWordsPerAnswer = totalWords / answerCount;
         const companyTag = session.company || 'General';
+        const durationSeconds = session.durationSeconds || 0;
+
+        // --- 1. KEYWORD & TECHNICAL ACCURACY CHECK ---
+        const techKeywords = [
+            'design', 'system', 'database', 'sql', 'nosql', 'api', 'backend', 'scale', 
+            'algorithm', 'cache', 'latency', 'memory', 'optimiz', 'code', 'function', 
+            'class', 'object', 'thread', 'index', 'query', 'star', 'conflict', 'leader'
+        ];
+        
+        let keywordHits = 0;
+        answers.forEach(ans => {
+            const lower = ans.toLowerCase();
+            techKeywords.forEach(kw => {
+                if (lower.includes(kw)) keywordHits++;
+            });
+        });
+
+        // Calculate technical accuracy ratio (0.0 to 1.0)
+        const accuracyFactor = Math.min(1.0, keywordHits / (answerCount * 2));
+
+        // --- 2. PACING & FLUENCY (CONFIDENCE) CHECK ---
+        // Answering too fast (<5s total) implies random clicking/typing. Optimal is ~30-90s per answer.
+        const avgSecondsPerAnswer = durationSeconds / answerCount;
+        let paitingMultiplier = 1.0;
+        if (avgSecondsPerAnswer < 5) {
+            paitingMultiplier = 0.4; // Heavily penalize rushed/fake answers
+        } else if (avgSecondsPerAnswer < 15) {
+            paitingMultiplier = 0.7;
+        }
+
+        // --- 3. STRICT SCORE COMPUTATION ---
+
+        // A. Skipped / Very Short / Low-Effort Answers (< 10 words per answer average)
+        if (avgWordsPerAnswer < 10) {
+            return {
+                overall: 25,
+                communication: 25,
+                grammar: 45,
+                confidence: Math.round(20 * paitingMultiplier),
+                technical: Math.round(15 * accuracyFactor) + 10,
+                professionalism: 30,
+                tier: "Needs Practice",
+                strengths: ["Attempted the session track."],
+                weaknesses: [
+                    `Responses were too brief (averaged only ${Math.round(avgWordsPerAnswer)} words per answer).`,
+                    "Failed to provide technical context, examples, or solution frameworks.",
+                    "Skipped detailed explanations for key questions."
+                ],
+                suggestions: `To pass a ${companyTag} technical interview, avoid one-word or brief answers. Explain concepts clearly with relevant examples.`
+            };
+        }
+
+        // B. Moderate / Partial Answers (10 to 30 words per answer average)
+        if (avgWordsPerAnswer < 30) {
+            const commScore = Math.min(70, Math.floor(avgWordsPerAnswer * 1.8) + 15);
+            const techScore = Math.min(68, Math.floor(avgWordsPerAnswer * 1.5 + (accuracyFactor * 25)));
+            const gramScore = 78;
+            const confScore = Math.min(70, Math.floor((avgWordsPerAnswer * 1.2 + 20) * paitingMultiplier));
+            const profScore = 72;
+            const overall = Math.round((commScore + techScore + gramScore + confScore + profScore) / 5);
+
+            return {
+                overall,
+                communication: commScore,
+                grammar: gramScore,
+                confidence: confScore,
+                technical: techScore,
+                professionalism: profScore,
+                tier: overall >= 65 ? "Recommended Hire" : "Needs Practice",
+                strengths: [
+                    `Provided baseline responses for ${companyTag} track.`,
+                    "Communicated main points with reasonable clarity."
+                ],
+                weaknesses: [
+                    "Lacked deep technical trade-offs, architecture diagrams, or quantitative metrics.",
+                    "Responses were brief for a senior technical evaluation."
+                ],
+                suggestions: `Elaborate more on technical design decisions, trade-offs, and metrics when interviewing for ${companyTag}.`
+            };
+        }
+
+        // C. Detailed Technical Answers (30+ words average)
+        const commScore = Math.min(95, Math.floor(avgWordsPerAnswer * 0.7) + 55);
+        const techScore = Math.min(96, Math.floor((avgWordsPerAnswer * 0.6) + (accuracyFactor * 35) + 30));
+        const gramScore = 90;
+        const confScore = Math.min(92, Math.floor((avgWordsPerAnswer * 0.5 + 45) * paitingMultiplier));
+        const profScore = 90;
+        const overall = Math.round((commScore + techScore + gramScore + confScore + profScore) / 5);
 
         return {
             overall,
@@ -108,17 +179,17 @@ document.addEventListener('DOMContentLoaded', () => {
             confidence: confScore,
             technical: techScore,
             professionalism: profScore,
-            tier,
+            tier: overall >= 80 ? "Strong Hire" : "Recommended Hire",
             strengths: [
-                `Provided detailed response depth for ${companyTag} track, averaging ${Math.round(avgLength)} characters per answer.`,
-                `Demonstrated relevant technical context and problem-solving framework awareness tailored to ${companyTag}.`,
-                "Maintained appropriate communication tone and professional pacing."
+                `Demonstrated good technical depth for ${companyTag}, averaging ${Math.round(avgWordsPerAnswer)} words per response.`,
+                "Used relevant domain terminology and structured reasoning.",
+                "Maintained steady pacing during responses."
             ],
             weaknesses: [
-                "Include more specific metric benchmarks (e.g., latency reduction %, accuracy rates).",
-                "Refine response conciseness to avoid conversational gaps."
+                "Include specific quantitative metrics (e.g. latency, throughput %, memory saved).",
+                "Structure behavioral responses strictly using the STAR methodology."
             ],
-            suggestions: `Practice using explicit quantitative data points when describing past achievements for ${companyTag} interviews.`
+            suggestions: `Solid performance! Continue practicing explaining trade-offs and quantitative outcomes for ${companyTag} interviews.`
         };
     }
 
@@ -159,10 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Store result payload to local storage and publish to live Firestore leaderboard
+     * Store result payload to local storage and publish to live Firestore leaderboard & interviews collections
      */
     async function persistEvaluationRecord(session, metrics) {
-        const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER || 'USER') || '{}');
+        const storedUser = JSON.parse(localStorage.getItem('intercoach_user') || localStorage.getItem(STORAGE_KEYS.USER || 'USER') || '{}');
+        const activeUser = auth.currentUser || storedUser;
+        const uid = activeUser.uid || storedUser.uid;
+        const displayName = activeUser.displayName || storedUser.displayName || 'Candidate';
+        const photoURL = activeUser.photoURL || storedUser.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + displayName;
 
         // Local Record
         const record = {
@@ -175,23 +250,66 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         saveToHistory(record);
 
-        // Live Firebase Leaderboard Record
+        if (!db) return;
+
+        // 1. Write to 'interviews' collection
         try {
-            await addDoc(collection(db, "leaderboard"), {
-                userId: user.uid || 'anon',
-                name: user.displayName || 'Pragnasheel B',
-                photo: user.photoURL || 'https://via.placeholder.com/80',
+            await addDoc(collection(db, "interviews"), {
+                userId: uid || 'anon',
+                userName: displayName,
+                userPhoto: photoURL,
                 company: session ? session.company : 'General',
+                category: session ? session.category : 'Technical',
+                difficulty: session ? session.difficulty : 'Medium',
                 overallScore: metrics.overall,
                 technical: metrics.technical,
                 communication: metrics.communication,
-                category: session ? session.category : 'General',
-                difficulty: session ? session.difficulty : 'Medium',
-                likes: 0,
-                reviews: [],
+                grammar: metrics.grammar,
+                confidence: metrics.confidence,
+                durationSeconds: session ? session.durationSeconds : 0,
                 timestamp: serverTimestamp(),
                 createdAt: new Date().toISOString()
             });
+            console.log("Successfully stored interview session record in Firestore!");
+        } catch (err) {
+            console.error("Firestore Interviews Storage Error:", err);
+        }
+
+        // 2. Write/Upsert to 'leaderboard' collection
+        try {
+            if (uid && uid !== 'anon') {
+                const leaderboardRef = doc(db, "leaderboard", uid);
+                await setDoc(leaderboardRef, {
+                    id: uid,
+                    userId: uid,
+                    name: displayName,
+                    photo: photoURL,
+                    company: session ? session.company : 'General',
+                    category: session ? session.category : 'Technical',
+                    difficulty: session ? session.difficulty : 'Medium',
+                    overallScore: metrics.overall,
+                    technical: metrics.technical,
+                    communication: metrics.communication,
+                    timestamp: serverTimestamp(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } else {
+                await addDoc(collection(db, "leaderboard"), {
+                    userId: 'anon',
+                    name: displayName,
+                    photo: photoURL,
+                    company: session ? session.company : 'General',
+                    category: session ? session.category : 'Technical',
+                    difficulty: session ? session.difficulty : 'Medium',
+                    overallScore: metrics.overall,
+                    technical: metrics.technical,
+                    communication: metrics.communication,
+                    likes: 0,
+                    reviews: [],
+                    timestamp: serverTimestamp(),
+                    createdAt: new Date().toISOString()
+                });
+            }
             console.log("Successfully published interview score to live community leaderboard!");
         } catch (err) {
             console.error("Firestore Leaderboard Sync Error:", err);

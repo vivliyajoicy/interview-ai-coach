@@ -15,6 +15,225 @@
     <!-- Base & Page Specific Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/result.css">
+    <style>
+        /* GAMIFIED RESULTS PAGE STYLES */
+        .result-container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            font-family: 'Poppins', system-ui, sans-serif;
+            position: relative;
+            z-index: 2;
+        }
+
+        .result-header-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .badge-pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--cyan-glow, #00f2fe);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0.25rem 0;
+        }
+
+        .subtitle {
+            color: var(--text-muted, #94a3b8);
+            font-size: 0.88rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary, .btn-share {
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover, .btn-share:hover {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--cyan-glow);
+        }
+
+        .game-dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .rank-card {
+            background: linear-gradient(145deg, rgba(20, 20, 35, 0.8), rgba(10, 10, 20, 0.9));
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.08);
+        }
+
+        .rank-circle-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 10;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke: var(--cyan-glow, #00f2fe);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.8s ease;
+        }
+
+        .rank-value-box {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .tier-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tier-warning { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
+        .tier-danger { background: rgba(255, 0, 85, 0.2); color: #ff0055; border: 1px solid #ff0055; }
+        .tier-success { background: rgba(0, 230, 118, 0.2); color: #00e676; border: 1px solid #00e676; }
+
+        .btn-primary-glow {
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            background: var(--gradient-primary, linear-gradient(135deg, #00f2fe, #4facfe));
+            color: #000;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+        }
+
+        .section-heading {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-group { margin-bottom: 1.2rem; }
+        .stat-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
+        .bar-danger { background: linear-gradient(90deg, #ff0055, #ff5252); }
+        .bar-warning { background: linear-gradient(90deg, #ffaa00, #ffd54f); }
+        .bar-success { background: linear-gradient(90deg, #00e676, #69f0ae); }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .insight-card ul { padding-left: 1.2rem; margin-top: 0.8rem; line-height: 1.6; }
+
+        @media (max-width: 768px) {
+            .game-dashboard-grid, .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            .result-header-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
 <body class="dark-theme">
     <!-- Background Elements -->
@@ -38,128 +257,119 @@
     </nav>
 
     <!-- Main Results Workspace -->
-    <main class="result-workspace-container" id="report-content-area">
-        
-        <!-- Header Banner -->
-        <header class="result-header glass">
+    <main class="result-container" id="report-content-area">
+        <!-- HERO HEADER: GAMING MATCH SUMMARY -->
+        <div class="result-header-card">
             <div>
-                <span class="badge glass"><i class="fa-solid fa-award text-glow"></i> Session Evaluation</span>
-                <h1>Candidate <span class="gradient-text">Performance Scorecard</span></h1>
-                <p>AI-generated diagnostic feedback based on technical accuracy, clarity, and tone.</p>
+                <span class="badge-pill">Match Completed</span>
+                <h1 class="page-title">Performance Report</h1>
+                <p class="subtitle">AI Diagnostic Evaluation • Technical Track</p>
             </div>
-            <div class="result-actions-group">
-                <button id="download-pdf-btn" class="btn btn-primary btn-glow">
-                    <i class="fa-solid fa-file-pdf"></i> Download PDF
-                </button>
-                <button id="share-result-btn" class="btn btn-secondary glass">
-                    <i class="fa-solid fa-share-nodes"></i> Share
-                </button>
-            </div>
-        </header>
-
-        <!-- Analytics Grid -->
-        <div class="result-grid">
             
-            <!-- Left Column: Primary Score Radial & Tier -->
-            <aside class="score-card-main glass">
-                <h3>Overall Readiness</h3>
-                <div class="circular-score-wrapper">
-                    <svg viewBox="0 0 36 36" class="circular-chart">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                        <path id="overall-score-circle" class="circle" stroke-dasharray="88, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                    </svg>
-                    <div class="score-inner-text">
-                        <span id="overall-score-val">88%</span>
-                        <small>Score</small>
-                    </div>
-                </div>
-                <div class="recommendation-badge" id="overall-tier-label">Strong Hire</div>
-                <a href="dashboard.html" class="btn btn-primary btn-glow btn-full-width" style="margin-top: 2rem;">
-                    <i class="fa-solid fa-rotate-right"></i> Practice Again
-                </a>
-            </aside>
-
-            <!-- Right Column: Breakdown Telemetry Bars -->
-            <section class="breakdown-card glass">
-                <h3>Diagnostic Categories</h3>
-                <div class="metrics-list">
-                    
-                    <div class="metric-row">
-                        <div class="metric-meta">
-                            <span>Communication & Clarity</span>
-                            <strong id="score-comm-val">85%</strong>
-                        </div>
-                        <div class="progress-bar-bg"><div id="score-comm-bar" class="progress-bar-fill" style="width: 85%;"></div></div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div class="metric-meta">
-                            <span>Technical Accuracy</span>
-                            <strong id="score-tech-val">90%</strong>
-                        </div>
-                        <div class="progress-bar-bg"><div id="score-tech-bar" class="progress-bar-fill" style="width: 90%;"></div></div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div class="metric-meta">
-                            <span>Grammar & Vocabulary</span>
-                            <strong id="score-gram-val">92%</strong>
-                        </div>
-                        <div class="progress-bar-bg"><div id="score-gram-bar" class="progress-bar-fill" style="width: 92%;"></div></div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div class="metric-meta">
-                            <span>Confidence & Pacing</span>
-                            <strong id="score-conf-val">80%</strong>
-                        </div>
-                        <div class="progress-bar-bg"><div id="score-conf-bar" class="progress-bar-fill" style="width: 80%;"></div></div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div class="metric-meta">
-                            <span>Professional Sentiment</span>
-                            <strong id="score-prof-val">95%</strong>
-                        </div>
-                        <div class="progress-bar-bg"><div id="score-prof-bar" class="progress-bar-fill" style="width: 95%;"></div></div>
-                    </div>
-
-                </div>
-            </section>
+            <div class="action-buttons">
+                <button id="download-pdf-btn" class="btn-secondary"><i class="fa-solid fa-file-pdf"></i> Save Report</button>
+                <button id="share-result-btn" class="btn-share"><i class="fa-solid fa-share-nodes"></i> Share Score</button>
+            </div>
         </div>
 
-        <!-- Qualitative AI Feedback Row -->
-        <div class="feedback-grid">
-            <div class="feedback-box glass">
-                <h4><i class="fa-solid fa-circle-check text-glow" style="color: var(--accent-neon);"></i> Key Strengths</h4>
-                <ul id="strengths-list-container" class="feedback-list">
-                    <li>Maintained clear structured reasoning across domain questions.</li>
-                    <li>Articulated solution frameworks with relevant technical terminology.</li>
-                    <li>Responded within optimal pacing thresholds.</li>
+        <!-- MAIN GRID: SCORE CARD + STATS -->
+        <div class="game-dashboard-grid">
+            
+            <!-- LEFT: ARCADE RANK CARD -->
+            <div class="rank-card">
+                <div class="rank-circle-container">
+                    <svg class="progress-ring" width="180" height="180">
+                        <circle class="ring-bg" cx="90" cy="90" r="75"/>
+                        <circle id="overall-score-circle" class="ring-fill" cx="90" cy="90" r="75" stroke-dasharray="57, 100"/>
+                    </svg>
+                    <div class="rank-value-box">
+                        <span id="overall-score-val" class="score-number">57%</span>
+                        <span id="overall-tier-label" class="tier-badge tier-warning">Needs Practice</span>
+                    </div>
+                </div>
+                
+                <a href="interview.html" id="practice-again-btn" class="btn-primary-glow">
+                    <i class="fa-solid fa-rotate-right"></i> Play Again
+                </a>
+            </div>
+
+            <!-- RIGHT: STAT STATS & XP BARS -->
+            <div class="stats-card">
+                <h3 class="section-heading"><i class="fa-solid fa-chart-simple"></i> Diagnostic Metrics</h3>
+                
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <span><i class="fa-solid fa-code"></i> Technical Accuracy</span>
+                        <span id="score-tech-val" class="stat-percentage">33%</span>
+                    </div>
+                    <div class="progress-track"><div id="score-tech-bar" class="progress-bar bar-danger" style="width: 33%"></div></div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <span><i class="fa-solid fa-comments"></i> Communication & Clarity</span>
+                        <span id="score-comm-val" class="stat-percentage">54%</span>
+                    </div>
+                    <div class="progress-track"><div id="score-comm-bar" class="progress-bar bar-warning" style="width: 54%"></div></div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <span><i class="fa-solid fa-bolt"></i> Confidence & Pacing</span>
+                        <span id="score-conf-val" class="stat-percentage">46%</span>
+                    </div>
+                    <div class="progress-track"><div id="score-conf-bar" class="progress-bar bar-warning" style="width: 46%"></div></div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <span><i class="fa-solid fa-spell-check"></i> Grammar & Vocabulary</span>
+                        <span id="score-gram-val" class="stat-percentage">78%</span>
+                    </div>
+                    <div class="progress-track"><div id="score-gram-bar" class="progress-bar bar-success" style="width: 78%"></div></div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <span><i class="fa-solid fa-user-tie"></i> Professional Tone</span>
+                        <span id="score-prof-val" class="stat-percentage">72%</span>
+                    </div>
+                    <div class="progress-track"><div id="score-prof-bar" class="progress-bar bar-success" style="width: 72%"></div></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM GRID: STRENGTHS & WEAKNESSES -->
+        <div class="insights-grid">
+            <div class="insight-card card-strengths">
+                <h3><i class="fa-solid fa-circle-check text-success" style="color: #00e676;"></i> Key Strengths</h3>
+                <ul id="strengths-list-container">
+                    <li>Provided baseline responses for technical track.</li>
+                    <li>Communicated main points with reasonable clarity.</li>
                 </ul>
             </div>
 
-            <div class="feedback-box glass">
-                <h4><i class="fa-solid fa-triangle-exclamation text-glow" style="color: var(--accent-warn);"></i> Areas for Improvement</h4>
-                <ul id="weaknesses-list-container" class="feedback-list">
-                    <li>Elaborate further on concrete quantitative project metrics.</li>
-                    <li>Structure behavioral answers strictly using the STAR methodology.</li>
+            <div class="insight-card card-weaknesses">
+                <h3><i class="fa-solid fa-triangle-exclamation text-danger" style="color: #ff0055;"></i> Areas for Improvement</h3>
+                <ul id="weaknesses-list-container">
+                    <li>Lacked deep technical trade-offs, architecture diagrams, or quantitative metrics.</li>
+                    <li>Responses were brief for a senior technical evaluation.</li>
                 </ul>
             </div>
         </div>
 
         <!-- AI Coach Strategic Advice -->
-        <section class="advice-card glass">
-            <h4><i class="fa-solid fa-lightbulb text-glow"></i> AI Actionable Guidance</h4>
-            <p id="suggestions-body-text">
+        <section class="insight-card" style="margin-top: 1.5rem;">
+            <h3><i class="fa-solid fa-lightbulb" style="color: #ffaa00;"></i> AI Actionable Guidance</h3>
+            <p id="suggestions-body-text" style="margin-top: 0.8rem; line-height: 1.6; color: var(--text-muted, #94a3b8);">
                 Focus on highlighting direct business outcomes and system performance trade-offs in future responses. Practice incorporating explicit quantitative data points when describing past architectural or situational achievements.
             </p>
         </section>
-
     </main>
 
     <!-- JS Scripts -->
-    <script src="js/utils.js"></script>
+    <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/firebase.js"></script>
     <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/result.js"></script>

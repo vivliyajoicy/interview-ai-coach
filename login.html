@@ -52,26 +52,32 @@
                 <span id="auth-alert-text">Status message text box.</span>
             </div>
 
-            <div class="login-actions">
+            <div class="login-actions" style="display: flex; flex-direction: column; gap: 1rem;">
                 <!-- Interactive Google Sign-In Trigger Box -->
                 <button id="googleLogin" class="btn btn-primary btn-glow btn-full-width">
                     <i class="fa-brands fa-google google-icon-brand"></i>
                     <span>Sign In With Google</span>
                 </button>
+                <!-- Instant Candidate Demo Access -->
+                <button id="demoLoginBtn" class="btn btn-secondary glass btn-full-width">
+                    <i class="fa-solid fa-user-check text-glow"></i>
+                    <span>Instant Candidate Access (Demo Login)</span>
+                </button>
             </div>
 
             <!-- Loading Mask State Overriding View -->
-            <div id="loadingOverlay" class="loading-overlay glass hidden">
+            <div id="loadingOverlay" class="loading-overlay glass hidden" style="display: none;">
                 <div class="spinner-container">
                     <div class="loading-spinner"></div>
-                    <p class="spinner-caption">Verifying dynamic identity keys...</p>
+                    <p class="spinner-caption" id="loading-caption-text">Verifying dynamic identity keys...</p>
+                    <button id="cancel-loading-btn" class="btn btn-secondary glass btn-sm" style="margin-top: 15px;">Cancel</button>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- Shared Core Utility Layer & Auth Controllers -->
-    <script src="js/utils.js"></script>
+    <script type="module" src="js/utils.js"></script>
     <!-- Importing the modern modular scripts explicitly as components -->
     <script type="module" src="js/firebase.js"></script>
     <script type="module" src="js/auth.js"></script>

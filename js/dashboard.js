@@ -3,6 +3,7 @@
    ========================================================================== */
 
 import { logoutUser } from './auth.js';
+import { db, auth, collection, getDocs } from './firebase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Element References
@@ -116,16 +117,46 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Loads historical interview logs and updates numerical stats
      */
-    function loadUserDashboardStats() {
+    async function loadUserDashboardStats() {
+        const storedUser = JSON.parse(localStorage.getItem('intercoach_user') || '{}');
+        const uid = (auth.currentUser ? auth.currentUser.uid : null) || storedUser.uid;
         const historyData = JSON.parse(localStorage.getItem('intercoach_history') || '[]');
 
-        if (totalInterviewsCount) {
-            totalInterviewsCount.innerText = historyData.length || 12;
+        let realCount = historyData.length;
+        let userRuns = historyData;
+
+        if (db && uid) {
+            try {
+                const interviewsSnap = await getDocs(collection(db, "interviews"));
+                const firestoreRuns = [];
+                interviewsSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.userId === uid) {
+                        firestoreRuns.push({
+                            category: data.category || 'Technical',
+                            difficulty: data.difficulty || 'Medium',
+                            score: data.overallScore || 0,
+                            date: data.createdAt || new Date().toISOString()
+                        });
+                    }
+                });
+
+                if (firestoreRuns.length > 0) {
+                    realCount = firestoreRuns.length;
+                    userRuns = firestoreRuns;
+                }
+            } catch (err) {
+                console.warn("Firestore dashboard stats fetch error:", err);
+            }
         }
 
-        if (recentRunsContainer && historyData.length > 0) {
+        if (totalInterviewsCount) {
+            totalInterviewsCount.innerText = realCount;
+        }
+
+        if (recentRunsContainer && userRuns.length > 0) {
             recentRunsContainer.innerHTML = '';
-            historyData.slice(0, 5).forEach(run => {
+            userRuns.slice(0, 5).forEach(run => {
                 const row = document.createElement('div');
                 row.className = 'log-item-row glass';
                 const scoreRatingClass = run.score >= 80 ? 'rating-high' : 'rating-mid';
